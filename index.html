@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Ben's MP3 Player</title>
+  <style>
+    body { font-family: Arial; background: #111; color: #eee; padding: 20px; }
+    .track { padding: 8px; cursor: pointer; border-bottom: 1px solid #333; }
+    .track:hover { background: #222; }
+    .active { background: #444; }
+  </style>
+</head>
+<body>
+
+<h2>Ben's MP3 Player</h2>
+
+<audio id="player" controls style="width:100%; margin-bottom:20px;"></audio>
+
+<div id="playlist"></div>
+
+<script>
+  const tracks = [
+    { title: "AG1314", url: "music/AG1314.mp3" },
+    { title: "AG1516", url: "music/AG1516.mp3" },
+    { title: "AG1718", url: "music/AG1718.mp3" },
+    { title: "AG1920", url: "music/AG1920.mp3" },
+    { title: "AG2122", url: "music/AG2122.mp3" },
+    { title: "AGX", url: "music/AGX.mp3" },
+    { title: "Jon", url: "music/Jon.mp3" },
+    { title: "Glaace", url: "music/Glaace.mp3" },
+    { title: "Glace", url: "music/Glace.mp3" },
+    { title: "Glace1", url: "music/Glace1.mp3" },
+    { title: "Glace2", url: "music/Glace2.mp3" },
+    { title: "Glace3", url: "music/Glace3.mp3" },
+    { title: "Glace4", url: "music/Glace4.mp3" },
+    { title: "Glace6", url: "music/Glace6.mp3" },
+    { title: "Glace7", url: "music/Glace7.mp3" },
+    { title: "Glace8", url: "music/Glace8.mp3" },
+    { title: "Glace9", url: "music/Glace9.mp3" },
+    { title: "Glace10", url: "music/Glace10.mp3" },
+    { title: "Glace11", url: "music/Glace11.mp3" },
+    { title: "Glace12", url: "music/Glace12.mp3" },
+    { title: "Glace13", url: "music/Glace13.mp3" },
+    { title: "Glace14", url: "music/Glace14.mp3" },
+    { title: "Glace15", url: "music/Glace15.mp3" },
+    { title: "Glace16", url: "music/Glace16.mp3" },
+    { title: "Glace17", url: "music/Glace17.mp3" },
+    { title: "Glace18", url: "music/Glace18.mp3" },
+    { title: "Glace19", url: "music/Glace19.mp3" },
+    { title: "Glace20", url: "music/Glace20.mp3" },
+    { title: "Glace21", url: "music/Glace21.mp3" },
+    { title: "Glace22", url: "music/Glace22.mp3" },
+    { title: "Glace23", url: "music/Glace23.mp3" },
+    { title: "Glace25", url: "music/Glace25.mp3" },
+    { title: "Glace26", url: "music/Glace26.mp3" },
+    { title: "Glace27", url: "music/Glace27.mp3" },
+    { title: "Glace28", url: "music/Glace28.mp3" },
+    { title: "Glace29", url: "music/Glace29.mp3" },
+    { title: "Glace30", url: "music/Glace30.mp3" },
+    { title: "Glace31", url: "music/Glace31.mp3" },
+    { title: "Glace32", url: "music/Glace32.mp3" },
+    { title: "Glace33", url: "music/Glace33.mp3" },
+    { title: "Glace34", url: "music/Glace34.mp3" },
+    { title: "Glace35", url: "music/Glace35.mp3" },
+    { title: "Glace36", url: "music/Glace36.mp3" },
+    { title: "Glace37", url: "music/Glace37.mp3" },
+    { title: "Glace38", url: "music/Glace38.mp3" },
+    { title: "Glace39", url: "music/Glace39.mp3" }
+  ];
+
+  const playlistDiv = document.getElementById("playlist");
+  const player = document.getElementById("player");
+
+  tracks.forEach((track, index) => {
+    const div = document.createElement("div");
+    div.className = "track";
+    div.textContent = track.title;
+    div.onclick = () => playTrack(index);
+    playlistDiv.appendChild(div);
+  });
+
+  function playTrack(index) {
+    player.src = tracks[index].url;
+    player.play();
+
+    document.querySelectorAll(".track").forEach(t => t.classList.remove("active"));
+    playlistDiv.children[index].classList.add("active");
+  }
+</script>
+
+</body>
+</html>
