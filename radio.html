@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Mini Radio Player</title>
+<style>
+  body {
+    background: #111;
+    color: #eee;
+    font-family: Arial, sans-serif;
+    padding: 20px;
+  }
+
+  .station {
+    display: flex;
+    align-items: center;
+    background: #1a1a1a;
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #333;
+    cursor: pointer;
+    transition: 0.2s;
+  }
+
+  .station:hover {
+    box-shadow: 0 0 10px rgba(0,255,150,0.4);
+  }
+
+  .station.active {
+    border-color: #00ff99;
+    box-shadow: 0 0 15px rgba(0,255,150,0.7);
+  }
+
+  .station img {
+    width: 50px;
+    height: 50px;
+    margin-right: 15px;
+    border-radius: 5px;
+    object-fit: cover;
+  }
+
+  .play-btn {
+    margin-left: auto;
+    background: #00ff99;
+    color: #000;
+    border: none;
+    padding: 8px 12px;
+    cursor: pointer;
+    font-weight: bold;
+    border-radius: 4px;
+  }
+
+  .play-btn:hover {
+    background: #00cc77;
+  }
+
+  #now-playing {
+    margin-top: 20px;
+    font-size: 18px;
+    color: #00ff99;
+  }
+</style>
+</head>
+<body>
+
+<h2>Mini Radio Player</h2>
+
+<audio id="audio" preload="none"></audio>
+
+<div id="stations"></div>
+
+<div id="now-playing">Now Playing: None</div>
+
+<script>
+const stations = [
+  { 
+    name: "Radio Central 24", 
+    url: "http://philae.shoutca.st:8459/stream",
+    logo: "https://via.placeholder.com/50?text=C24"
+  },
+  { 
+    name: "Radio Deeside", 
+    url: "http://stream2.hippynet.co.uk:8059/",
+    logo: "https://via.placeholder.com/50?text=DEE"
+  },
+  { 
+    name: "Radio Newquay", 
+    url: "http://s46.myradiostream.com:8816/listen.mp3",
+    logo: "https://via.placeholder.com/50?text=NEW"
+  }
+];
+
+const audio = document.getElementById("audio");
+const container = document.getElementById("stations");
+const nowPlaying = document.getElementById("now-playing");
+let currentIndex = -1;
+
+function renderStations() {
+  stations.forEach((station, index) => {
+    const div = document.createElement("div");
+    div.className = "station";
+    div.innerHTML = `
+      <img src="${station.logo}">
+      <span>${station.name}</span>
+      <button class="play-btn">Play</button>
+    `;
+
+    div.querySelector(".play-btn").onclick = () => playStation(index);
+    container.appendChild(div);
+  });
+}
+
+function playStation(index) {
+  if (currentIndex !== -1) {
+    container.children[currentIndex].classList.remove("active");
+  }
+
+  currentIndex = index;
+  const station = stations[index];
+
+  audio.src = station.url;
+  audio.play();
+
+  container.children[index].classList.add("active");
+  nowPlaying.textContent = "Now Playing: " + station.name;
+}
+
+renderStations();
+</script>
+
+</body>
+</html>
