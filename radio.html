@@ -15,27 +15,39 @@
     }
 
     h1 {
-        margin-bottom: 20px;
+        margin-bottom: 25px;
         font-size: 26px;
     }
 
+    .station-row {
+        display: flex;
+        justify-content: center;
+        gap: 25px;
+        margin-bottom: 25px;
+        flex-wrap: wrap;
+    }
+
     .station {
-        margin: 20px 0;
-        padding: 15px;
-        background: #1c1c1c;
-        border-radius: 10px;
+        cursor: pointer;
+        text-align: center;
     }
 
     .station img {
-        width: 140px;
-        height: auto;
-        margin-bottom: 10px;
-        border-radius: 6px;
+        width: 120px;
+        height: 120px;
+        border-radius: 10px;
+        border: 2px solid #333;
+        transition: 0.2s;
+    }
+
+    .station img:hover {
+        transform: scale(1.08);
+        border-color: #666;
     }
 
     audio {
         width: 100%;
-        margin-top: 10px;
+        margin-top: 20px;
     }
 </style>
 </head>
@@ -44,33 +56,38 @@
 
 <h1>My Radio Player</h1>
 
-<!-- SIBC -->
-<div class="station">
-    <img src="https://upload.wikimedia.org/wikipedia/commons/5/5b/SIBC_logo.png" alt="SIBC Logo">
-    <h2>SIBC</h2>
-    <audio controls>
-        <source src="https://stream-proxy.radio-browser.info/stream/ffbc100c-ba89-440e-91a2-0da7ff66be5d" type="audio/mpeg">
-    </audio>
+<div class="station-row">
+
+    <!-- SIBC -->
+    <div class="station" onclick="playStation('https://stream-proxy.radio-browser.info/stream/ffbc100c-ba89-440e-91a2-0da7ff66be5d')">
+        <img src="https://cdn.radio-browser.info/logos/ffbc100c-ba89-440e-91a2-0da7ff66be5d.png" alt="SIBC">
+    </div>
+
+    <!-- Drive 105 -->
+    <div class="station" onclick="playStation('https://stream-proxy.radio-browser.info/stream/9615ed0e-0601-11e8-ae97-52543be04c81')">
+        <img src="https://cdn.radio-browser.info/logos/9615ed0e-0601-11e8-ae97-52543be04c81.png" alt="Drive 105">
+    </div>
+
+    <!-- Ambition Radio -->
+    <div class="station" onclick="playStation('https://stream-proxy.radio-browser.info/stream/51608490-7beb-49e1-9312-0604bedc4f79')">
+        <img src="https://cdn.radio-browser.info/logos/51608490-7beb-49e1-9312-0604bedc4f79.png" alt="Ambition Radio">
+    </div>
+
 </div>
 
-<!-- Drive 105 -->
-<div class="station">
-    <img src="https://static.radio.net/images/broadcasts/0e/7e/105drive-200x200.png" alt="Drive 105 Logo">
-    <h2>Drive 105</h2>
-    <audio controls>
-        <source src="https://stream-proxy.radio-browser.info/stream/9615ed0e-0601-11e8-ae97-52543be04c81" type="audio/mpeg">
-    </audio>
-</div>
+<audio id="player" controls>
+    <source id="audioSource" src="" type="audio/mpeg">
+</audio>
 
-<!-- Ambition Radio -->
-<div class="station">
-    <img src="https://static.radio.net/images/broadcasts/1c/4f/ambitionradio-200x200.png" alt="Ambition Radio Logo">
-    <h2>Ambition Radio</h2>
-    <audio controls>
-        <source src="https://stream-proxy.radio-browser.info/stream/51608490-7beb-49e1-9312-0604bedc4f79" type="audio/mpeg">
-    </audio>
-</div>
+<script>
+function playStation(url) {
+    const player = document.getElementById('player');
+    const source = document.getElementById('audioSource');
+    source.src = url;
+    player.load();
+    player.play();
+}
+</script>
 
 </body>
 </html>
-
