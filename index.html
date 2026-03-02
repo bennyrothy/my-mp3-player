@@ -171,7 +171,6 @@
 
   /* -------------------------------
      TRUE NO‑REPEAT SHUFFLE SYSTEM
-     (Option 2 — full cycle shuffle)
   --------------------------------*/
 
   let shuffleEnabled = false;
@@ -212,9 +211,8 @@
       div.appendChild(newTag);
     }
 
+    // FIXED: clicking a track no longer disables shuffle
     div.onclick = () => {
-      shuffleEnabled = false;
-      document.getElementById("shuffle-btn").classList.remove("active");
       playTrack(index);
     };
 
@@ -261,7 +259,6 @@
 
 </body>
 </html>
-
 
 
 
