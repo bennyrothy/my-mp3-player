@@ -168,7 +168,34 @@
   const player = document.getElementById("player");
 
   let currentIndex = 0;
-  let shuffle = false;
+
+  /* -------------------------------
+     TRUE NO‑REPEAT SHUFFLE SYSTEM
+     (Option 2 — full cycle shuffle)
+  --------------------------------*/
+
+  let shuffleEnabled = false;
+  let shuffleQueue = [];
+
+  function reshuffle() {
+    shuffleQueue = [...tracks.keys()]; // list of indexes 0..46
+    shuffleQueue.sort(() => Math.random() - 0.5);
+  }
+
+  function toggleShuffle() {
+    shuffleEnabled = !shuffleEnabled;
+    document.getElementById("shuffle-btn").classList.toggle("active", shuffleEnabled);
+
+    if (shuffleEnabled) {
+      if (shuffleQueue.length === 0) reshuffle();
+      const nextIndex = shuffleQueue.shift();
+      playTrack(nextIndex);
+    }
+  }
+
+  /* -------------------------------
+     BUILD PLAYLIST UI
+  --------------------------------*/
 
   tracks.forEach((track, index) => {
     const div = document.createElement("div");
@@ -185,9 +212,18 @@
       div.appendChild(newTag);
     }
 
-    div.onclick = () => playTrack(index);
+    div.onclick = () => {
+      shuffleEnabled = false;
+      document.getElementById("shuffle-btn").classList.remove("active");
+      playTrack(index);
+    };
+
     playlistDiv.appendChild(div);
   });
+
+  /* -------------------------------
+     PLAY TRACK
+  --------------------------------*/
 
   function playTrack(index) {
     currentIndex = index;
@@ -198,22 +234,9 @@
     playlistDiv.children[index].classList.add("active");
   }
 
-  function getRandomIndex() {
-    let newIndex;
-    do {
-      newIndex = Math.floor(Math.random() * tracks.length);
-    } while (newIndex === currentIndex);
-    return newIndex;
-  }
-
-  function toggleShuffle() {
-    shuffle = !shuffle;
-    document.getElementById("shuffle-btn").classList.toggle("active", shuffle);
-
-    if (shuffle) {
-      playTrack(getRandomIndex());
-    }
-  }
+  /* -------------------------------
+     SKIP BUTTONS
+  --------------------------------*/
 
   function skipBack() {
     player.currentTime = Math.max(0, player.currentTime - 30);
@@ -223,17 +246,21 @@
     player.currentTime = Math.min(player.duration, player.currentTime + 30);
   }
 
+  /* -------------------------------
+     AUTO‑PLAY NEXT (SHUFFLE MODE)
+  --------------------------------*/
+
   player.addEventListener("ended", () => {
-    if (shuffle) {
-      playTrack(getRandomIndex());
+    if (shuffleEnabled) {
+      if (shuffleQueue.length === 0) reshuffle();
+      const nextIndex = shuffleQueue.shift();
+      playTrack(nextIndex);
     }
   });
 </script>
 
 </body>
 </html>
-
-
 
 
 
