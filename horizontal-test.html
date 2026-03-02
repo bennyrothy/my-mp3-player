@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Ben's MP3 Player – Horizontal Grid</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+    body {
+        margin: 0;
+        font-family: Arial, sans-serif;
+        background: url('bridge.jpg') no-repeat center center fixed;
+        background-size: cover;
+        color: white;
+        text-align: center;
+    }
+
+    .overlay {
+        background: rgba(0, 0, 0, 0.55);
+        padding: 20px;
+        min-height: 100vh;
+    }
+
+    h1 {
+        margin-top: 10px;
+        margin-bottom: 20px;
+        text-shadow: 0 0 10px black;
+    }
+
+    audio {
+        width: 90%;
+        max-width: 600px;
+        margin-bottom: 25px;
+    }
+
+    /* GRID LAYOUT */
+    .grid {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 12px;
+        padding-bottom: 40px;
+    }
+
+    /* GLOW BUTTONS */
+    .show-tile {
+        width: 120px; /* Change this to 180px or 250px later if you want bigger tiles */
+        padding: 10px 0;
+        background: rgba(0, 0, 0, 0.6);
+        border-radius: 8px;
+        cursor: pointer;
+        transition: 0.2s;
+        box-shadow: 0 0 10px #00ff66; /* Green glow */
+    }
+
+    .show-tile:hover {
+        box-shadow: 0 0 15px #00ff66;
+        transform: scale(1.05);
+    }
+
+    .active {
+        box-shadow: 0 0 20px #00ff66;
+        background: rgba(0, 0, 0, 0.8);
+    }
+</style>
+
+</head>
+<body>
+<div class="overlay">
+
+<h1>Ben's MP3 Player</h1>
+
+<audio id="player" controls>
+    <source id="audioSource" src="">
+</audio>
+
+<div class="grid">
+
+    <!-- EXACT ORDER YOU LISTED -->
+    <div class="show-tile" data-file="AG1314.mp3">AG1314</div>
+    <div class="show-tile" data-file="AG1516.mp3">AG1516</div>
+    <div class="show-tile" data-file="AG1718.mp3">AG1718</div>
+    <div class="show-tile" data-file="AG1920.mp3">AG1920</div>
+    <div class="show-tile" data-file="AG2122.mp3">AG2122</div>
+    <div class="show-tile" data-file="AG23.mp3">AG23</div>
+    <div class="show-tile" data-file="AGX.mp3">AGX</div>
+    <div class="show-tile" data-file="Jon.mp3">Jon</div>
+    <div class="show-tile" data-file="Glaace.mp3">Glaace</div>
+    <div class="show-tile" data-file="Glace.mp3">Glace</div>
+    <div class="show-tile" data-file="Glace1.mp3">Glace1</div>
+    <div class="show-tile" data-file="Glace2.mp3">Glace2</div>
+    <div class="show-tile" data-file="Glace3.mp3">Glace3</div>
+    <div class="show-tile" data-file="Glace4.mp3">Glace4</div>
+    <div class="show-tile" data-file="Glace6.mp3">Glace6</div>
+    <div class="show-tile" data-file="Glace7.mp3">Glace7</div>
+    <div class="show-tile" data-file="Glace8.mp3">Glace8</div>
+    <div class="show-tile" data-file="Glace9.mp3">Glace9</div>
+    <div class="show-tile" data-file="Glace10.mp3">Glace10</div>
+    <div class="show-tile" data-file="Glace11.mp3">Glace11</div>
+    <div class="show-tile" data-file="Glace12.mp3">Glace12</div>
+    <div class="show-tile" data-file="Glace13.mp3">Glace13</div>
+    <div class="show-tile" data-file="Glace14.mp3">Glace14</div>
+    <div class="show-tile" data-file="Glace15.mp3">Glace15</div>
+    <div class="show-tile" data-file="Glace16.mp3">Glace16</div>
+    <div class="show-tile" data-file="Glace17.mp3">Glace17</div>
+    <div class="show-tile" data-file="Glace18.mp3">Glace18</div>
+    <div class="show-tile" data-file="Glace19.mp3">Glace19</div>
+    <div class="show-tile" data-file="Glace20.mp3">Glace20</div>
+    <div class="show-tile" data-file="Glace21.mp3">Glace21</div>
+    <div class="show-tile" data-file="Glace22.mp3">Glace22</div>
+    <div class="show-tile" data-file="Glace23.mp3">Glace23</div>
+    <div class="show-tile" data-file="Glace25.mp3">Glace25</div>
+    <div class="show-tile" data-file="Glace26.mp3">Glace26</div>
+    <div class="show-tile" data-file="Glace27.mp3">Glace27</div>
+    <div class="show-tile" data-file="Glace28.mp3">Glace28</div>
+    <div class="show-tile" data-file="Glace29.mp3">Glace29</div>
+    <div class="show-tile" data-file="Glace30.mp3">Glace30</div>
+    <div class="show-tile" data-file="Glace31.mp3">Glace31</div>
+    <div class="show-tile" data-file="Glace32.mp3">Glace32</div>
+    <div class="show-tile" data-file="Glace33.mp3">Glace33</div>
+    <div class="show-tile" data-file="Glace34.mp3">Glace34</div>
+    <div class="show-tile" data-file="Glace35.mp3">Glace35</div>
+    <div class="show-tile" data-file="Glace36.mp3">Glace36</div>
+    <div class="show-tile" data-file="Glace37.mp3">Glace37</div>
+    <div class="show-tile" data-file="Glace38.mp3">Glace38</div>
+    <div class="show-tile" data-file="Glace39.mp3">Glace39</div>
+
+</div>
+
+</div>
+
+<script>
+    const tiles = document.querySelectorAll('.show-tile');
+    const player = document.getElementById('player');
+    const audioSource = document.getElementById('audioSource');
+
+    tiles.forEach(tile => {
+        tile.addEventListener('click', () => {
+            tiles.forEach(t => t.classList.remove('active'));
+            tile.classList.add('active');
+
+            const file = tile.getAttribute('data-file');
+            audioSource.src = file;
+            player.load();
+            player.play();
+        });
+    });
+</script>
+
+</body>
+</html>
