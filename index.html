@@ -58,7 +58,12 @@
     .new-badge {
       color: #ff4444;
       font-weight: bold;
-      opacity: 1;
+    }
+
+    .latest-badge {
+      color: #00ff99;
+      font-weight: 900;
+      text-shadow: 0 0 6px #00ff99;
     }
 
     .skip-btn {
@@ -66,33 +71,6 @@
       padding: 8px 12px;
       font-size: 14px;
       cursor: pointer;
-    }
-
-    @media (max-width: 600px) {
-      body {
-        padding: 10px;
-      }
-
-      h2 {
-        font-size: 22px;
-        text-align: center;
-      }
-
-      #shuffle-btn, .skip-btn {
-        width: 100%;
-        padding: 12px;
-        font-size: 18px;
-        margin-bottom: 10px;
-      }
-
-      audio {
-        width: 100%;
-      }
-
-      .track {
-        font-size: 16px;
-        padding: 12px;
-      }
     }
   </style>
 </head>
@@ -112,89 +90,108 @@
 
 <script>
   const tracks = [
-    { title: "AG1314", url: "music/AG1314.mp3" },
-    { title: "AG1516", url: "music/AG1516.mp3" },
-    { title: "AG1718", url: "music/AG1718.mp3" },
-    { title: "AG1920", url: "music/AG1920.mp3" },
-    { title: "AG2122", url: "music/AG2122.mp3" },
 
-    { title: "AG23", url: "music/AG23.mp3" },
+    /* -------------------------
+       G L A C E   (Newest first)
+    --------------------------*/
 
-    { title: "AGX", url: "music/AGX.mp3" },
-    { title: "Jon", url: "music/Jon.mp3" },
-    { title: "Glaace", url: "music/Glaace.mp3" },
-    { title: "Glace", url: "music/Glace.mp3" },
-    { title: "Glace1", url: "music/Glace1.mp3" },
-    { title: "Glace2", url: "music/Glace2.mp3" },
-    { title: "Glace3", url: "music/Glace3.mp3" },
-    { title: "Glace4", url: "music/Glace4.mp3" },
-    { title: "Glace6", url: "music/Glace6.mp3" },
-    { title: "Glace7", url: "music/Glace7.mp3" },
-    { title: "Glace8", url: "music/Glace8.mp3" },
-    { title: "Glace9", url: "music/Glace9.mp3" },
-    { title: "Glace10", url: "music/Glace10.mp3" },
-    { title: "Glace11", url: "music/Glace11.mp3" },
-    { title: "Glace12", url: "music/Glace12.mp3" },
-    { title: "Glace13", url: "music/Glace13.mp3" },
-    { title: "Glace14", url: "music/Glace14.mp3" },
-    { title: "Glace15", url: "music/Glace15.mp3" },
-    { title: "Glace16", url: "music/Glace16.mp3" },
-    { title: "Glace17", url: "music/Glace17.mp3" },
-    { title: "Glace18", url: "music/Glace18.mp3" },
-    { title: "Glace19", url: "music/Glace19.mp3" },
-    { title: "Glace20", url: "music/Glace20.mp3" },
-    { title: "Glace21", url: "music/Glace21.mp3" },
-    { title: "Glace22", url: "music/Glace22.mp3" },
-    { title: "Glace23", url: "music/Glace23.mp3" },
-    { title: "Glace25", url: "music/Glace25.mp3" },
-    { title: "Glace26", url: "music/Glace26.mp3" },
-    { title: "Glace27", url: "music/Glace27.mp3" },
-    { title: "Glace28", url: "music/Glace28.mp3" },
-    { title: "Glace29", url: "music/Glace29.mp3" },
-    { title: "Glace30", url: "music/Glace30.mp3" },
-    { title: "Glace31", url: "music/Glace31.mp3" },
-    { title: "Glace32", url: "music/Glace32.mp3" },
-    { title: "Glace33", url: "music/Glace33.mp3" },
-    { title: "Glace34", url: "music/Glace34.mp3" },
-    { title: "Glace35", url: "music/Glace35.mp3" },
-    { title: "Glace36", url: "music/Glace36.mp3" },
-    { title: "Glace37", url: "music/Glace37.mp3" },
+    { title: "Glace40", url: "music/Glace40.mp3", isLatest: true },
+    { title: "Glace39", url: "music/Glace39.mp3", isNew: true },
     { title: "Glace38", url: "music/Glace38.mp3" },
+    { title: "Glace37", url: "music/Glace37.mp3" },
+    { title: "Glace36", url: "music/Glace36.mp3" },
+    { title: "Glace35", url: "music/Glace35.mp3" },
+    { title: "Glace34", url: "music/Glace34.mp3" },
+    { title: "Glace33", url: "music/Glace33.mp3" },
+    { title: "Glace32", url: "music/Glace32.mp3" },
+    { title: "Glace31", url: "music/Glace31.mp3" },
+    { title: "Glace30", url: "music/Glace30.mp3" },
+    { title: "Glace29", url: "music/Glace29.mp3" },
+    { title: "Glace28", url: "music/Glace28.mp3" },
+    { title: "Glace27", url: "music/Glace27.mp3" },
+    { title: "Glace26", url: "music/Glace26.mp3" },
+    { title: "Glace25", url: "music/Glace25.mp3" },
+    { title: "Glace23", url: "music/Glace23.mp3" },
+    { title: "Glace22", url: "music/Glace22.mp3" },
+    { title: "Glace21", url: "music/Glace21.mp3" },
+    { title: "Glace20", url: "music/Glace20.mp3" },
+    { title: "Glace19", url: "music/Glace19.mp3" },
+    { title: "Glace18", url: "music/Glace18.mp3" },
+    { title: "Glace17", url: "music/Glace17.mp3" },
+    { title: "Glace16", url: "music/Glace16.mp3" },
+    { title: "Glace15", url: "music/Glace15.mp3" },
+    { title: "Glace14", url: "music/Glace14.mp3" },
+    { title: "Glace13", url: "music/Glace13.mp3" },
+    { title: "Glace12", url: "music/Glace12.mp3" },
+    { title: "Glace11", url: "music/Glace11.mp3" },
+    { title: "Glace10", url: "music/Glace10.mp3" },
+    { title: "Glace9", url: "music/Glace9.mp3" },
+    { title: "Glace8", url: "music/Glace8.mp3" },
+    { title: "Glace7", url: "music/Glace7.mp3" },
+    { title: "Glace6", url: "music/Glace6.mp3" },
+    { title: "Glace4", url: "music/Glace4.mp3" },
+    { title: "Glace3", url: "music/Glace3.mp3" },
+    { title: "Glace2", url: "music/Glace2.mp3" },
+    { title: "Glace1", url: "music/Glace1.mp3" },
+    { title: "Glace", url: "music/Glace.mp3" },
+    { title: "Glaace", url: "music/Glaace.mp3" },
 
-    { title: "Glace39", url: "music/Glace39.mp3", isNew: true }
+    /* -------------------------
+       J O N
+    --------------------------*/
+
+    { title: "Jon2", url: "music/Jon2.mp3" },
+    { title: "Jon", url: "music/Jon.mp3" },
+
+    /* -------------------------
+       A M A Z I N G   G R A C E
+       (Newest → Oldest)
+    --------------------------*/
+
+    { title: "Amazing Grace 23", url: "music/Amazing Grace 23.mp3" },
+    { title: "Amazing Grace 22", url: "music/Amazing Grace 22.mp3" },
+    { title: "Amazing Grace 21", url: "music/Amazing Grace 21.mp3" },
+    { title: "Amazing Grace X", url: "music/Amazing Grace X.mp3" },
+    { title: "Amazing Grace 20", url: "music/Amazing Grace 20.mp3" },
+    { title: "Amazing Grace 19", url: "music/Amazing Grace 19.mp3" },
+    { title: "Amazing Grace 18", url: "music/Amazing Grace 18.mp3" },
+    { title: "Amazing Grace 17", url: "music/Amazing Grace 17.mp3" },
+    { title: "Amazing Grace 16", url: "music/Amazing Grace 16.mp3" },
+    { title: "Amazing Grace 15", url: "music/Amazing Grace 15.mp3" },
+    { title: "Amazing Grace 14", url: "music/Amazing Grace 14.mp3" },
+    { title: "Amazing Grace 13", url: "music/Amazing Grace 13.mp3" },
+    { title: "Amazing Grace 12", url: "music/Amazing Grace 12.mp3" },
+    { title: "Amazing Grace", url: "music/Amazing Grace.mp3" },
+    { title: "Amazing Grace 10.5", url: "music/Amazing Grace 10.5.mp3" },
+    { title: "Amazing Grace 9–11", url: "music/Amazing Grace 9-11.mp3" },
+    { title: "Amazing Grace 6–8", url: "music/Amazing Grace 6-8.mp3" },
+    { title: "Amazing Grace 1", url: "music/Amazing Grace 1.mp3" }
   ];
 
   const playlistDiv = document.getElementById("playlist");
   const player = document.getElementById("player");
 
   let currentIndex = 0;
-
-  /* -------------------------------
-     TRUE NO‑REPEAT SHUFFLE SYSTEM
-  --------------------------------*/
-
   let shuffleEnabled = false;
   let shuffleQueue = [];
 
   function reshuffle() {
-    shuffleQueue = [...tracks.keys()]; // list of indexes 0..46
+    shuffleQueue = Array.from({ length: tracks.length }, (_, i) => i);
+    shuffleQueue = shuffleQueue.filter(i => i !== currentIndex);
     shuffleQueue.sort(() => Math.random() - 0.5);
   }
 
   function toggleShuffle() {
-    shuffleEnabled = !shuffleEnabled;
-    document.getElementById("shuffle-btn").classList.toggle("active", shuffleEnabled);
-
-    if (shuffleEnabled) {
-      if (shuffleQueue.length === 0) reshuffle();
-      const nextIndex = shuffleQueue.shift();
-      playTrack(nextIndex);
+    if (!shuffleEnabled) {
+      shuffleEnabled = true;
+      document.getElementById("shuffle-btn").classList.add("active");
+      reshuffle();
+      playTrack(shuffleQueue.shift());
+    } else {
+      shuffleEnabled = false;
+      document.getElementById("shuffle-btn").classList.remove("active");
     }
   }
-
-  /* -------------------------------
-     BUILD PLAYLIST UI
-  --------------------------------*/
 
   tracks.forEach((track, index) => {
     const div = document.createElement("div");
@@ -205,23 +202,22 @@
     div.appendChild(titleSpan);
 
     if (track.isNew) {
-      const newTag = document.createElement("span");
-      newTag.className = "new-badge";
-      newTag.textContent = "NEW";
-      div.appendChild(newTag);
+      const badge = document.createElement("span");
+      badge.className = "new-badge";
+      badge.textContent = "NEW";
+      div.appendChild(badge);
     }
 
-    // FIXED: clicking a track no longer disables shuffle
-    div.onclick = () => {
-      playTrack(index);
-    };
+    if (track.isLatest) {
+      const badge = document.createElement("span");
+      badge.className = "latest-badge";
+      badge.textContent = "LATEST";
+      div.appendChild(badge);
+    }
 
+    div.onclick = () => playTrack(index);
     playlistDiv.appendChild(div);
   });
-
-  /* -------------------------------
-     PLAY TRACK
-  --------------------------------*/
 
   function playTrack(index) {
     currentIndex = index;
@@ -232,10 +228,6 @@
     playlistDiv.children[index].classList.add("active");
   }
 
-  /* -------------------------------
-     SKIP BUTTONS
-  --------------------------------*/
-
   function skipBack() {
     player.currentTime = Math.max(0, player.currentTime - 30);
   }
@@ -244,21 +236,13 @@
     player.currentTime = Math.min(player.duration, player.currentTime + 30);
   }
 
-  /* -------------------------------
-     AUTO‑PLAY NEXT (SHUFFLE MODE)
-  --------------------------------*/
-
   player.addEventListener("ended", () => {
     if (shuffleEnabled) {
       if (shuffleQueue.length === 0) reshuffle();
-      const nextIndex = shuffleQueue.shift();
-      playTrack(nextIndex);
+      playTrack(shuffleQueue.shift());
     }
   });
 </script>
 
 </body>
 </html>
-
-
-
