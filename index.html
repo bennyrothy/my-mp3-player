@@ -6,31 +6,44 @@
   <title>Ben's MP3 Player</title>
 
   <style>
-    body {
-      font-family: Arial;
-      background: #000 no-repeat center center fixed;
+    /* Background layer */
+    #bg {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100vh;
       background-size: cover;
-      color: #eee;
-      padding: 20px;
-      position: relative;
-
-      /* Fade-in fix */
+      background-position: center center;
+      background-repeat: no-repeat;
+      z-index: -3;
       opacity: 0;
       transition: opacity 0.6s ease-in;
     }
 
-    body.loaded {
-      opacity: 1;
+    /* Overlay layer */
+    #overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100vh;
+      background: rgba(0,0,0,0.45);
+      z-index: -2;
+      pointer-events: none;
     }
 
-    body::before {
-      content: "";
-      position: fixed;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      background: rgba(0,0,0,0.45);
-      pointer-events: none;
-      z-index: -1;
+    /* Content */
+    body {
+      margin: 0;
+      padding: 20px;
+      font-family: Arial;
+      color: #eee;
+      background: #000; /* never seen because bg covers it */
+    }
+
+    h2 {
+      margin-top: 0;
     }
 
     .track {
@@ -84,10 +97,12 @@
 
 <body>
 
+<div id="bg"></div>
+<div id="overlay"></div>
+
 <h2>Ben's MP3 Player</h2>
 
 <button id="shuffle-btn" onclick="toggleShuffle()">Shuffle</button>
-
 <button class="skip-btn" onclick="skipBack()">⏪ -30s</button>
 <button class="skip-btn" onclick="skipForward()">⏩ +30s</button>
 
@@ -97,7 +112,7 @@
 
 <script>
 /* ----------------------------------------------------
-   DAY / NIGHT BACKGROUND SYSTEM + PRELOAD + FADE-IN
+   FIXED BACKGROUND LAYER + PRELOAD + FADE-IN
 -----------------------------------------------------*/
 
 const dayBackgrounds = [
@@ -116,16 +131,16 @@ const hour = new Date().getHours();
 const isDaytime = hour >= 6 && hour < 18;
 const chosenSet = isDaytime ? dayBackgrounds : nightBackgrounds;
 
-// Pick random background
 const chosenBackground = chosenSet[Math.floor(Math.random() * chosenSet.length)];
 
-// Preload chosen background
+const bgDiv = document.getElementById("bg");
+
 const preloadImg = new Image();
 preloadImg.src = chosenBackground;
 
 preloadImg.onload = () => {
-  document.body.style.backgroundImage = `url('${chosenBackground}')`;
-  document.body.classList.add("loaded");
+  bgDiv.style.backgroundImage = `url('${chosenBackground}')`;
+  bgDiv.style.opacity = "1";
 };
 
 
