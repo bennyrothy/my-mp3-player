@@ -18,7 +18,6 @@
       z-index: -3;
     }
 
-    /* Overlay fully transparent so no grey box ever appears */
     #overlay {
       position: fixed;
       top: 0;
@@ -38,7 +37,6 @@
       background: #000;
     }
 
-    /* NOW PLAYING text */
     #now-playing {
       margin: 10px 0 15px 0;
       font-size: 18px;
@@ -47,7 +45,6 @@
       text-shadow: 0 0 6px #00ffcc;
     }
 
-    /* Playlist panel */
     #playlist {
       background: rgba(0,0,0,0.35);
       padding: 10px 0;
@@ -96,7 +93,6 @@
       color: #fff;
     }
 
-    /* Remove black audio bar */
     audio::-webkit-media-controls-panel {
       background: transparent !important;
     }
@@ -121,7 +117,6 @@
 <button class="skip-btn" onclick="skipBack()">⏪ -30s</button>
 <button class="skip-btn" onclick="skipForward()">⏩ +30s</button>
 
-<!-- NEW: Now Playing -->
 <div id="now-playing">Now Playing: None</div>
 
 <audio id="player" controls preload="auto" style="width:100%; margin-bottom:20px;"></audio>
@@ -170,6 +165,9 @@
   <div class="track" data-url="music/Glace.mp3"><span>Glace</span></div>
   <div class="track" data-url="music/Glaace.mp3"><span>Glaace</span></div>
 
+  <!-- Joy inserted here -->
+  <div class="track" data-url="music/Joy.mp3"><span>Joy</span></div>
+
   <div class="track" data-url="music/Jon2.mp3"><span>Jon2</span></div>
   <div class="track" data-url="music/Jon.mp3"><span>Jon</span></div>
 
@@ -198,7 +196,6 @@
 </div>
 
 <script>
-/* Background rotation */
 const dayBackgrounds = [
   "backgrounds/bg_day1.jpg",
   "backgrounds/bg_day2.jpg",
@@ -218,23 +215,19 @@ const chosenBackground = chosenSet[Math.floor(Math.random() * chosenSet.length)]
 
 document.getElementById("bg").style.backgroundImage = `url('${chosenBackground}')`;
 
-/* Player logic */
 const player = document.getElementById("player");
 const tracks = Array.from(document.querySelectorAll(".track"));
 let currentIndex = 0;
 let shuffleEnabled = false;
 let shuffleQueue = [];
 
-/* Preload audio object */
 let preloadAudio = new Audio();
 
-/* Preload function */
 function preloadTrack(index) {
   preloadAudio.src = tracks[index].dataset.url;
   preloadAudio.load();
 }
 
-/* Scroll-based preloading */
 const observer = new IntersectionObserver((entries) => {
   entries.forEach(entry => {
     if (entry.isIntersecting) {
@@ -248,7 +241,6 @@ const observer = new IntersectionObserver((entries) => {
   threshold: 0.1
 });
 
-/* Attach events */
 tracks.forEach((track, index) => {
   track.addEventListener("mouseenter", () => preloadTrack(index));
   track.addEventListener("click", () => playTrack(index));
@@ -266,7 +258,6 @@ function playTrack(index) {
   tracks.forEach(t => t.classList.remove("active"));
   tracks[index].classList.add("active");
 
-  /* Update Now Playing */
   const name = tracks[index].querySelector("span").textContent;
   document.getElementById("now-playing").textContent = "Now Playing: " + name;
 
