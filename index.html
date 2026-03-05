@@ -18,14 +18,14 @@
       z-index: -3;
     }
 
-    /* FIXED: subtle overlay so background is visible */
+    /* Overlay fully transparent so no grey box ever appears */
     #overlay {
       position: fixed;
       top: 0;
       left: 0;
       width: 100%;
       height: 100vh;
-      background: rgba(0,0,0,0.18); /* no grey box */
+      background: transparent;
       z-index: -2;
       pointer-events: none;
     }
@@ -38,14 +38,24 @@
       background: #000;
     }
 
+    /* NOW PLAYING text */
+    #now-playing {
+      margin: 10px 0 15px 0;
+      font-size: 18px;
+      font-weight: bold;
+      color: #00ffcc;
+      text-shadow: 0 0 6px #00ffcc;
+    }
+
+    /* Playlist panel */
     #playlist {
-      background: #111; /* opaque for instant paint */
+      background: rgba(0,0,0,0.35);
       padding: 10px 0;
       border-radius: 6px;
     }
 
     .track {
-      background: #222;
+      background: rgba(0,0,0,0.55);
       padding: 10px;
       cursor: pointer;
       border-bottom: 1px solid #333;
@@ -55,11 +65,11 @@
     }
 
     .track:hover {
-      background: #333;
+      background: rgba(0,0,0,0.7);
     }
 
     .active {
-      background: #000;
+      background: rgba(0,0,0,0.9);
       border-left: 4px solid #00ff99;
     }
 
@@ -85,6 +95,18 @@
       background-color: #4caf50;
       color: #fff;
     }
+
+    /* Remove black audio bar */
+    audio::-webkit-media-controls-panel {
+      background: transparent !important;
+    }
+    audio::-webkit-media-controls-enclosure {
+      background: transparent !important;
+    }
+    audio {
+      background: transparent !important;
+      color-scheme: light;
+    }
   </style>
 </head>
 
@@ -98,6 +120,9 @@
 <button id="shuffle-btn" onclick="toggleShuffle()">Shuffle</button>
 <button class="skip-btn" onclick="skipBack()">⏪ -30s</button>
 <button class="skip-btn" onclick="skipForward()">⏩ +30s</button>
+
+<!-- NEW: Now Playing -->
+<div id="now-playing">Now Playing: None</div>
 
 <audio id="player" controls preload="auto" style="width:100%; margin-bottom:20px;"></audio>
 
@@ -240,6 +265,10 @@ function playTrack(index) {
 
   tracks.forEach(t => t.classList.remove("active"));
   tracks[index].classList.add("active");
+
+  /* Update Now Playing */
+  const name = tracks[index].querySelector("span").textContent;
+  document.getElementById("now-playing").textContent = "Now Playing: " + name;
 
   if (shuffleEnabled && shuffleQueue.length > 0) {
     preloadTrack(shuffleQueue[0]);
