@@ -6,6 +6,7 @@
   <title>Ben's MP3 Player</title>
 
   <style>
+    /* Background layer */
     #bg {
       position: fixed;
       top: 0;
@@ -16,16 +17,16 @@
       background-position: center center;
       background-repeat: no-repeat;
       z-index: -3;
-      opacity: 1;
     }
 
+    /* Overlay (now opaque for instant paint) */
     #overlay {
       position: fixed;
       top: 0;
       left: 0;
       width: 100%;
       height: 100vh;
-      background: rgba(0,0,0,0.45);
+      background: #00000080; /* 50% black but opaque paint */
       z-index: -2;
       pointer-events: none;
     }
@@ -35,41 +36,37 @@
       padding: 20px;
       font-family: Arial;
       color: #eee;
-      background: #111;
+      background: #000; /* instant, no flash */
     }
 
     h2 {
       margin-top: 0;
     }
 
+    /* Playlist panel (opaque for instant paint) */
     #playlist {
-      background: rgba(0,0,0,0.25);
+      background: #111; /* instant, no delay */
       padding: 10px 0;
       border-radius: 6px;
     }
 
     .track {
-      background: rgba(0,0,0,0.45);
+      background: #222; /* instant paint */
       padding: 10px;
       cursor: pointer;
       border-bottom: 1px solid #333;
       display: flex;
       align-items: center;
       gap: 10px;
-      transition: 0.15s;
     }
 
     .track:hover {
-      background: rgba(0,0,0,0.55);
-      box-shadow: 0 0 10px rgba(255,255,255,0.3);
-      transform: scale(1.02);
+      background: #333;
     }
 
     .active {
-      background: rgba(0,0,0,0.75);
-      box-shadow: 0 0 15px rgba(0,255,150,0.6);
+      background: #000;
       border-left: 4px solid #00ff99;
-      transform: scale(1.02);
     }
 
     #shuffle-btn.active {
@@ -110,7 +107,7 @@
 
 <audio id="player" controls preload="auto" style="width:100%; margin-bottom:20px;"></audio>
 
-<!-- INSTANT PLAYLIST (no delay) -->
+<!-- INSTANT PLAYLIST -->
 <div id="playlist">
 
   <div class="track" data-url="music/Glace40.mp3"><span>Glace40</span> <span class="latest-badge">LATEST</span></div>
