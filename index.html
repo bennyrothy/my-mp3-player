@@ -45,28 +45,31 @@
       text-shadow: 0 0 6px #00ffcc;
     }
 
+    /* Playlist container almost fully transparent */
     #playlist {
-      background: rgba(0,0,0,0.35);
+      background: rgba(0,0,0,0.05);
       padding: 10px 0;
       border-radius: 6px;
     }
 
+    /* Track rows extremely transparent */
     .track {
-      background: rgba(0,0,0,0.55);
+      background: rgba(0,0,0,0.08);
       padding: 10px;
       cursor: pointer;
-      border-bottom: 1px solid #333;
+      border-bottom: 1px solid rgba(255,255,255,0.12);
       display: flex;
       align-items: center;
       gap: 10px;
     }
 
     .track:hover {
-      background: rgba(0,0,0,0.7);
+      background: rgba(0,0,0,0.16);
     }
 
+    /* Active track still visible but transparent */
     .active {
-      background: rgba(0,0,0,0.9);
+      background: rgba(0,0,0,0.22);
       border-left: 4px solid #00ff99;
     }
 
@@ -165,7 +168,6 @@
   <div class="track" data-url="music/Glace.mp3"><span>Glace</span></div>
   <div class="track" data-url="music/Glaace.mp3"><span>Glaace</span></div>
 
-  <!-- Joy inserted here -->
   <div class="track" data-url="music/Joy.mp3"><span>Joy</span></div>
 
   <div class="track" data-url="music/Jon2.mp3"><span>Jon2</span></div>
