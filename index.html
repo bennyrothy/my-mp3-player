@@ -13,6 +13,14 @@
       color: #eee;
       padding: 20px;
       position: relative;
+
+      /* Fade-in fix */
+      opacity: 0;
+      transition: opacity 0.6s ease-in;
+    }
+
+    body.loaded {
+      opacity: 1;
     }
 
     body::before {
@@ -89,7 +97,7 @@
 
 <script>
 /* ----------------------------------------------------
-   DAY / NIGHT BACKGROUND SYSTEM
+   DAY / NIGHT BACKGROUND SYSTEM + PRELOAD + FADE-IN
 -----------------------------------------------------*/
 
 const dayBackgrounds = [
@@ -108,15 +116,17 @@ const hour = new Date().getHours();
 const isDaytime = hour >= 6 && hour < 18;
 const chosenSet = isDaytime ? dayBackgrounds : nightBackgrounds;
 
-// Preload chosen set
-chosenSet.forEach(src => {
-  const img = new Image();
-  img.src = src;
-});
+// Pick random background
+const chosenBackground = chosenSet[Math.floor(Math.random() * chosenSet.length)];
 
-// Apply instantly
-document.body.style.backgroundImage =
-  `url('${chosenSet[Math.floor(Math.random() * chosenSet.length)]}')`;
+// Preload chosen background
+const preloadImg = new Image();
+preloadImg.src = chosenBackground;
+
+preloadImg.onload = () => {
+  document.body.style.backgroundImage = `url('${chosenBackground}')`;
+  document.body.classList.add("loaded");
+};
 
 
 /* ----------------------------------------------------
