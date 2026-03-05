@@ -18,13 +18,14 @@
       z-index: -3;
     }
 
+    /* FIXED: subtle overlay so background is visible */
     #overlay {
       position: fixed;
       top: 0;
       left: 0;
       width: 100%;
       height: 100vh;
-      background: #00000080;
+      background: rgba(0,0,0,0.18); /* no grey box */
       z-index: -2;
       pointer-events: none;
     }
@@ -38,7 +39,7 @@
     }
 
     #playlist {
-      background: #111;
+      background: #111; /* opaque for instant paint */
       padding: 10px 0;
       border-radius: 6px;
     }
