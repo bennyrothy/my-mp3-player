@@ -17,8 +17,8 @@
       background-position: center center;
       background-repeat: no-repeat;
       z-index: -3;
-      opacity: 0;
-      transition: opacity 0.6s ease-in;
+      opacity: 1; /* instant */
+      transition: none;
     }
 
     /* Overlay layer */
@@ -39,21 +39,29 @@
       padding: 20px;
       font-family: Arial;
       color: #eee;
-      background: #000; /* never seen because bg covers it */
+      background: #111; /* prevents flash */
     }
 
     h2 {
       margin-top: 0;
     }
 
+    /* Subtle dark playlist panel */
+    #playlist {
+      background: rgba(0,0,0,0.25);
+      backdrop-filter: blur(2px);
+      padding: 10px 0;
+      border-radius: 6px;
+    }
+
     .track {
+      background: rgba(0,0,0,0.45); /* prevents grey flash */
       padding: 10px;
       cursor: pointer;
       border-bottom: 1px solid #333;
       display: flex;
       align-items: center;
       gap: 10px;
-      background: rgba(0,0,0,0.4);
       transition: 0.15s;
     }
 
@@ -112,7 +120,7 @@
 
 <script>
 /* ----------------------------------------------------
-   FIXED BACKGROUND LAYER + PRELOAD + FADE-IN
+   FIXED BACKGROUND (INSTANT, NO FADE)
 -----------------------------------------------------*/
 
 const dayBackgrounds = [
@@ -133,15 +141,7 @@ const chosenSet = isDaytime ? dayBackgrounds : nightBackgrounds;
 
 const chosenBackground = chosenSet[Math.floor(Math.random() * chosenSet.length)];
 
-const bgDiv = document.getElementById("bg");
-
-const preloadImg = new Image();
-preloadImg.src = chosenBackground;
-
-preloadImg.onload = () => {
-  bgDiv.style.backgroundImage = `url('${chosenBackground}')`;
-  bgDiv.style.opacity = "1";
-};
+document.getElementById("bg").style.backgroundImage = `url('${chosenBackground}')`;
 
 
 /* ----------------------------------------------------
