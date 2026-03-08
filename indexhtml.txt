@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <style>
+    /* BACKGROUND */
+    #bg {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100vh;
+      background-size: cover;
+      background-position: center center;
+      background-repeat: no-repeat;
+      z-index: -3;
+    }
+
+    #overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100vh;
+      background: transparent;
+      z-index: -2;
+      pointer-events: none;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: Arial;
+      color: #eee;
+      background: #000;
+    }
+
+    /* CONTENT WRAPPER BELOW RADIO */
+    #content-wrapper {
+      margin-top: 220px;
+      padding: 20px;
+    }
+
+    /* NOW PLAYING */
+    #now-playing {
+      margin: 10px 0 10px 0;
+      font-size: 18px;
+      font-weight: bold;
+      color: #00ffcc;
+      text-shadow: 0 0 6px #00ffcc;
+    }
+
+    /* CUSTOM SHOW PLAYER */
+    #custom-player {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 25px;
+      user-select: none;
+    }
+
+    .cp-button {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.15);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      cursor: pointer;
+    }
+
+    #cp-progress-container {
+      flex: 1;
+      position: relative;
+      height: 6px;
+    }
+
+    #cp-progress-bg {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 6px;
+      background: rgba(255,255,255,0.03);
+      border-radius: 6px;
+    }
+
+    #cp-progress {
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: 6px;
+      width: 0%;
+      background: rgba(255,255,255,0.25);
+      border-radius: 6px;
+    }
+
+    #cp-handle {
+      position: absolute;
+      top: -4px;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.5);
+      transform: translateX(-50%);
+      left: 0%;
+      cursor: pointer;
+    }
+
+    #cp-time {
+      font-size: 13px;
+      color: rgba(255,255,255,0.6);
+      white-space: nowrap;
+    }
+
+    #cp-volume {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    #cp-vol-slider {
+      width: 90px;
+    }
+
+    /* PLAYLIST */
+    #playlist {
+      background: rgba(0,0,0,0.02);
+      padding: 10px 0;
+      border-radius: 6px;
+    }
+
+    .track {
+      background: rgba(0,0,0,0.03);
+      padding: 10px;
+      cursor: pointer;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .track:hover {
+      background: rgba(0,0,0,0.10);
+    }
+
+    .active {
+      background: rgba(0,0,0,0.22);
+      border-left: 4px solid #00ff99;
+    }
+
+    .new-badge {
+      color: #ff4444;
+      font-weight: bold;
+    }
+
+    .latest-badge {
+      color: #00ff99;
+      font-weight: 900;
+      text-shadow: 0 0 6px #00ff99;
+    }
+
+    /* RADIO PLAYER — NO BLUR */
+    #radioIcon {
+      position: fixed;
+      top: 0px;
+      left: 20px;
+      width: 260px;
+      display: flex;
+      justify-content: center;
+      z-index: 99999;
+      pointer-events: none;
+    }
+
+    #radioIcon img {
+      width: 56px;
+      height: 56px;
+      opacity: 0.9;
+      transform: translateX(-4px);
+    }
+
+    #radioBar {
+      position: fixed;
+      top: 55px;
+      left: 20px;
+      width: 260px;
+      height: 42px;
+      background: rgba(0,0,0,0.08); /* BLUR REMOVED */
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      padding: 0 8px;
+      color: #fff;
+      font-size: 14px;
+      z-index: 99998;
+    }
+
+    .radioBtn {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: conic-gradient(#4f8cff, #b44cff);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 0 6px rgba(100, 80, 255, 0.6);
+    }
+
+    .radioBtnInner {
+      width: 28px;
+      height: 28px;
+      background: #e6e6e6;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 17px;
+      color: #000;
+    }
+
+    #radioCenter {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    #liveTag {
+      color: #ff3333;
+      font-weight: bold;
+      font-size: 13px;
+    }
+
+    #radioStationName {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 110px;
+      text-align: center;
+    }
+
+    #radioVolume {
+      position: fixed;
+      top: 85px;
+      left: 20px;
+      width: 260px;
+      display: flex;
+      justify-content: center;
+      z-index: 99999;
+    }
+
+    #radioVolume input {
+      width: 200px;
+    }
+  </style>
+</head>
+<body>
+
+<!-- ⭐ RADIO FIRST (fixed, always on top) ⭐ -->
+<div id="radioIcon">
+  <img src="radio-icon.png" alt="Radio">
+</div>
+
+<div id="radioBar">
+  <div id="radioPrev" class="radioBtn">
+    <div class="radioBtnInner">⏪</div>
+  </div>
+
+  <div id="radioCenter">
+    <div id="radioPlayPause" class="radioBtn">
+      <div id="radioPlayPauseInner" class="radioBtnInner">▶</div>
+    </div>
+
+    <span id="liveTag">LIVE</span>
+    <span id="radioStationName">Loading…</span>
+  </div>
+
+  <div id="radioNext" class="radioBtn">
+    <div class="radioBtnInner">⏩</div>
+  </div>
+</div>
+
+<div id="radioVolume">
+  <input type="range" min="0" max="1" step="0.01" value="0.25">
+</div>
+
+<!-- ⭐ BACKGROUND BELOW RADIO ⭐ -->
+<div id="bg"></div>
+<div id="overlay"></div>
+
+<!-- ⭐ CONTENT WRAPPER (starts below radio) ⭐ -->
+<div id="content-wrapper">
+<!-- ⭐ CONTENT WRAPPER (continues from Part 2) ⭐ -->
+
+<button id="shuffle-btn" onclick="toggleShuffle()">Shuffle</button>
+<button class="skip-btn" onclick="skipBack()">⏪ -30s</button>
+<button class="skip-btn" onclick="skipForward()">⏩ +30s</button>
+
+<div id="now-playing">Now Playing: None</div>
+
+<div id="custom-player">
+
+  <!-- PLAY / PAUSE -->
+  <div id="cp-play" class="cp-button">▶</div>
+
+  <!-- PROGRESS BAR -->
+  <div id="cp-progress-container">
+    <div id="cp-progress-bg"></div>
+    <div id="cp-progress"></div>
+    <div id="cp-handle"></div>
+  </div>
+
+  <!-- TIME DISPLAY -->
+  <div id="cp-time">0:00 / 0:00</div>
+
+  <!-- VOLUME -->
+  <div id="cp-volume">
+    <span id="cp-vol-icon">🔊</span>
+    <input id="cp-vol-slider" type="range" min="0" max="1" step="0.01" value="0.8">
+  </div>
+
+</div>
+<!-- ⭐ PLAYLIST ⭐ -->
+<div id="playlist">
+
+  <div class="track" data-url="music/Glace40.mp3"><span>Glace40</span> <span class="latest-badge">LATEST</span></div>
+  <div class="track" data-url="music/Glace39.mp3"><span>Glace39</span> <span class="new-badge">NEW</span></div>
+
+  <div class="track" data-url="music/Glace38.mp3"><span>Glace38</span></div>
+  <div class="track" data-url="music/Glace37.mp3"><span>Glace37</span></div>
+  <div class="track" data-url="music/Glace36.mp3"><span>Glace36</span></div>
+  <div class="track" data-url="music/Glace35.mp3"><span>Glace35</span></div>
+  <div class="track" data-url="music/Glace34.mp3"><span>Glace34</span></div>
+  <div class="track" data-url="music/Glace33.mp3"><span>Glace33</span></div>
+  <div class="track" data-url="music/Glace32.mp3"><span>Glace32</span></div>
+  <div class="track" data-url="music/Glace31.mp3"><span>Glace31</span></div>
+  <div class="track" data-url="music/Glace30.mp3"><span>Glace30</span></div>
+  <div class="track" data-url="music/Glace29.mp3"><span>Glace29</span></div>
+  <div class="track" data-url="music/Glace28.mp3"><span>Glace28</span></div>
+  <div class="track" data-url="music/Glace27.mp3"><span>Glace27</span></div>
+  <div class="track" data-url="music/Glace26.mp3"><span>Glace26</span></div>
+  <div class="track" data-url="music/Glace25.mp3"><span>Glace25</span></div>
+  <div class="track" data-url="music/Glace23.mp3"><span>Glace23</span></div>
+  <div class="track" data-url="music/Glace22.mp3"><span>Glace22</span></div>
+  <div class="track" data-url="music/Glace21.mp3"><span>Glace21</span></div>
+  <div class="track" data-url="music/Glace20.mp3"><span>Glace20</span></div>
+  <div class="track" data-url="music/Glace19.mp3"><span>Glace19</span></div>
+  <div class="track" data-url="music/Glace18.mp3"><span>Glace18</span></div>
+  <div class="track" data-url="music/Glace17.mp3"><span>Glace17</span></div>
+  <div class="track" data-url="music/Glace16.mp3"><span>Glace16</span></div>
+  <div class="track" data-url="music/Glace15.mp3"><span>Glace15</span></div>
+  <div class="track" data-url="music/Glace14.mp3"><span>Glace14</span></div>
+  <div class="track" data-url="music/Glace13.mp3"><span>Glace13</span></div>
+  <div class="track" data-url="music/Glace12.mp3"><span>Glace12</span></div>
+  <div class="track" data-url="music/Glace11.mp3"><span>Glace11</span></div>
+  <div class="track" data-url="music/Glace10.mp3"><span>Glace10</span></div>
+  <div class="track" data-url="music/Glace9.mp3"><span>Glace9</span></div>
+  <div class="track" data-url="music/Glace8.mp3"><span>Glace8</span></div>
+  <div class="track" data-url="music/Glace7.mp3"><span>Glace7</span></div>
+  <div class="track" data-url="music/Glace6.mp3"><span>Glace6</span></div>
+  <div class="track" data-url="music/Glace4.mp3"><span>Glace4</span></div>
+  <div class="track" data-url="music/Glace3.mp3"><span>Glace3</span></div>
+  <div class="track" data-url="music/Glace2.mp3"><span>Glace2</span></div>
+  <div class="track" data-url="music/Glace1.mp3"><span>Glace1</span></div>
+  <div class="track" data-url="music/Glace.mp3"><span>Glace</span></div>
+  <div class="track" data-url="music/Glaace.mp3"><span>Glaace</span></div>
+
+  <div class="track" data-url="music/Joy.mp3"><span>Joy</span></div>
+  <div class="track" data-url="music/Jon2.mp3"><span>Jon2</span></div>
+  <div class="track" data-url="music/Jon.mp3"><span>Jon</span></div>
+
+  <div class="track" data-url="music/Extras 3.mp3"><span>Extras 3</span></div>
+  <div class="track" data-url="music/Extras 2.mp3"><span>Extras 2</span></div>
+  <div class="track" data-url="music/Extras 1.mp3"><span>Extras 1</span></div>
+
+  <div class="track" data-url="music/Amazing Grace 23.mp3"><span>Amazing Grace 23</span></div>
+  <div class="track" data-url="music/Amazing Grace 22.mp3"><span>Amazing Grace 22</span></div>
+  <div class="track" data-url="music/Amazing Grace 21.mp3"><span>Amazing Grace 21</span></div>
+  <div class="track" data-url="music/Amazing Grace X.mp3"><span>Amazing Grace X</span></div>
+  <div class="track" data-url="music/Amazing Grace 20.mp3"><span>Amazing Grace 20</span></div>
+  <div class="track" data-url="music/Amazing Grace 19.mp3"><span>Amazing Grace 19</span></div>
+  <div class="track" data-url="music/Amazing Grace 18.mp3"><span>Amazing Grace 18</span></div>
+  <div class="track" data-url="music/Amazing Grace 17.mp3"><span>Amazing Grace 17</span></div>
+  <div class="track" data-url="music/Amazing Grace 16.mp3"><span>Amazing Grace 16</span></div>
+  <div class="track" data-url="music/Amazing Grace 15.mp3"><span>Amazing Grace 15</span></div>
+  <div class="track" data-url="music/Amazing Grace 14.mp3"><span>Amazing Grace 14</span></div>
+  <div class="track" data-url="music/Amazing Grace 13.mp3"><span>Amazing Grace 13</span></div>
+  <div class="track" data-url="music/Amazing Grace 12.mp3"><span>Amazing Grace 12</span></div>
+  <div class="track" data-url="music/Amazing Grace 10.5.mp3"><span>Amazing Grace 10.5</span></div>
+  <div class="track" data-url="music/Amazing Grace 9-11.mp3"><span>Amazing Grace 9-11</span></div>
+  <div class="track" data-url="music/Amazing Grace 6-8.mp3"><span>Amazing Grace 6-8</span></div>
+  <div class="track" data-url="music/Amazing Grace 1.mp3"><span>Amazing Grace 1</span></div>
+
+</div> <!-- end playlist -->
+</div> <!-- end of #content-wrapper -->
+
+</body>
+</html>
+
+<!-- ⭐ BACKGROUND ROTATION ⭐ -->
+<script>
+const dayBackgrounds = [
+  "backgrounds/bg_day1.jpg",
+  "backgrounds/bg_day2.jpg",
+  "backgrounds/bg_day3.jpg"
+];
+
+const nightBackgrounds = [
+  "backgrounds/bg_night1.jpg",
+  "backgrounds/bg_night2.jpg",
+  "backgrounds/bg_night3.jpg"
+];
+
+const hour = new Date().getHours();
+const isDaytime = hour >= 6 && hour < 18;
+const chosenSet = isDaytime ? dayBackgrounds : nightBackgrounds;
+const chosenBackground = chosenSet[Math.floor(Math.random() * chosenSet.length)];
+
+document.getElementById("bg").style.backgroundImage = `url('${chosenBackground}')`;
+</script>
+
+<!-- ⭐ MP3 PLAYER SCRIPT ⭐ -->
+<script>
+const player = new Audio();
+player.id = "player";
+player.volume = 1.0;
+
+const tracks = Array.from(document.querySelectorAll(".track"));
+let currentIndex = 0;
+let shuffleEnabled = false;
+let shuffleQueue = [];
+
+let preloadAudio = new Audio();
+
+function preloadTrack(index) {
+  preloadAudio.src = tracks[index].dataset.url;
+  preloadAudio.load();
+}
+
+tracks.forEach((track, index) => {
+  track.addEventListener("mouseenter", () => preloadTrack(index));
+  track.addEventListener("click", () => playTrack(index));
+});
+
+function playTrack(index) {
+  currentIndex = index;
+  const url = tracks[index].dataset.url;
+
+  player.src = url;
+  player.load();
+  player.play();
+
+  tracks.forEach(t => t.classList.remove("active"));
+  tracks[index].classList.add("active");
+
+  const name = tracks[index].querySelector("span").textContent;
+  document.getElementById("now-playing").textContent = "Now Playing: " + name;
+
+  cpPlay.textContent = "⏸";
+
+  if (!radioAudio.paused) {
+    radioAudio.pause();
+    playPauseInner.textContent = "▶";
+    liveTag.style.opacity = "0.4";
+  }
+}
+
+function reshuffle() {
+  shuffleQueue = tracks.map((_, i) => i).filter(i => i !== currentIndex);
+  shuffleQueue.sort(() => Math.random() - 0.5);
+}
+
+function toggleShuffle() {
+  shuffleEnabled = !shuffleEnabled;
+  document.getElementById("shuffle-btn").classList.toggle("active", shuffleEnabled);
+
+  if (shuffleEnabled) {
+    reshuffle();
+    playTrack(shuffleQueue.shift());
+  }
+}
+
+player.addEventListener("ended", () => {
+  if (shuffleEnabled) {
+    if (shuffleQueue.length === 0) reshuffle();
+    playTrack(shuffleQueue.shift());
+  }
+});
+
+/* CUSTOM PLAYER — PLAY/PAUSE */
+const cpPlay = document.getElementById("cp-play");
+const cpProgress = document.getElementById("cp-progress");
+const cpProgressBg = document.getElementById("cp-progress-bg");
+const cpHandle = document.getElementById("cp-handle");
+const cpTime = document.getElementById("cp-time");
+const cpVolSlider = document.getElementById("cp-vol-slider");
+
+cpPlay.addEventListener("click", () => {
+  if (player.paused) {
+    player.play();
+    cpPlay.textContent = "⏸";
+
+    if (!radioAudio.paused) {
+      radioAudio.pause();
+      playPauseInner.textContent = "▶";
+      liveTag.style.opacity = "0.4";
+    }
+
+  } else {
+    player.pause();
+    cpPlay.textContent = "▶";
+  }
+});
+
+/* PROGRESS BAR */
+player.addEventListener("timeupdate", () => {
+  if (player.duration) {
+    const percent = (player.currentTime / player.duration) * 100;
+    cpProgress.style.width = percent + "%";
+    cpHandle.style.left = percent + "%";
+
+    cpTime.textContent =
+      formatTime(player.currentTime) + " / " + formatTime(player.duration);
+  }
+});
+
+function formatTime(sec) {
+  if (!sec || isNaN(sec)) return "0:00";
+  const m = Math.floor(sec / 60);
+  const s = Math.floor(sec % 60).toString().padStart(2, "0");
+  return `${m}:${s}`;
+}
+
+/* SEEKING */
+let seeking = false;
+
+cpProgressBg.addEventListener("mousedown", (e) => {
+  seeking = true;
+  seekTo(e);
+});
+
+document.addEventListener("mousemove", (e) => {
+  if (seeking) seekTo(e);
+});
+
+document.addEventListener("mouseup", () => {
+  seeking = false;
+});
+
+function seekTo(e) {
+  const rect = cpProgressBg.getBoundingClientRect();
+  const x = Math.min(Math.max(0, e.clientX - rect.left), rect.width);
+  const percent = x / rect.width;
+  player.currentTime = percent * player.duration;
+}
+
+/* SKIP BUTTONS */
+function skipBack() {
+  if (!isNaN(player.currentTime)) {
+    player.currentTime = Math.max(0, player.currentTime - 30);
+  }
+}
+
+function skipForward() {
+  if (!isNaN(player.currentTime) && !isNaN(player.duration)) {
+    player.currentTime = Math.min(player.duration, player.currentTime + 30);
+  }
+}
+
+/* VOLUME */
+cpVolSlider.addEventListener("input", () => {
+  player.volume = cpVolSlider.value;
+});
+</script>
+
+<!-- ⭐ RADIO SYSTEM ⭐ -->
+<script>
+const radioAudio = new Audio();
+radioAudio.id = "radioAudio";
+radioAudio.volume = 0.35;
+
+const radioName = document.getElementById("radioStationName");
+const playPauseBtn = document.getElementById("radioPlayPause");
+const playPauseInner = document.getElementById("radioPlayPauseInner");
+const liveTag = document.getElementById("liveTag");
+
+const radioStations = [
+  { name: "Atlantic Extra", url: "https://cwilliams78.radioca.st/stream?nocache=" + Date.now() },
+  { name: "Hot 103 & 97", url: "https://a9.asurahosting.com:7640/radio.mp3?nocache=" + Date.now() },
+  { name: "Original Hot 103", url: "https://streaming.live365.com/a77423?nocache=" + Date.now() }
+];
+
+let currentRadioIndex = 0;
+
+function loadRadioStation(i) {
+  currentRadioIndex = i;
+  radioName.textContent = radioStations[i].name;
+  radioAudio.src = radioStations[i].url;
+}
+
+playPauseBtn.addEventListener("click", () => {
+  if (radioAudio.paused) {
+    radioAudio.load();
+    radioAudio.play();
+    playPauseInner.textContent = "⏸";
+    liveTag.style.opacity = "1";
+  } else {
+    radioAudio.pause();
+    playPauseInner.textContent = "▶";
+    liveTag.style.opacity = "0.4";
+  }
+});
+
+document.getElementById("radioPrev").addEventListener("click", () => {
+  currentRadioIndex = (currentRadioIndex - 1 + radioStations.length) % radioStations.length;
+  loadRadioStation(currentRadioIndex);
+  radioAudio.load();
+  radioAudio.play();
+  playPauseInner.textContent = "⏸";
+});
+
+document.getElementById("radioNext").addEventListener("click", () => {
+  currentRadioIndex = (currentRadioIndex + 1) % radioStations.length;
+  loadRadioStation(currentRadioIndex);
+  radioAudio.load();
+  radioAudio.play();
+  playPauseInner.textContent = "⏸";
+});
+
+document.querySelector("#radioVolume input").addEventListener("input", e => {
+  radioAudio.volume = e.target.value;
+});
+
+loadRadioStation(0);
+</script>
