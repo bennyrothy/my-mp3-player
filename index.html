@@ -1,1 +1,304 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ben's MP3 Player</title>
 
+  <style>
+    #bg {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100vh;
+      background-size: cover;
+      background-position: center center;
+      background-repeat: no-repeat;
+      z-index: -3;
+    }
+
+    #overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100vh;
+      background: transparent;
+      z-index: -2;
+      pointer-events: none;
+    }
+
+    body {
+      margin: 0;
+      padding: 20px;
+      font-family: Arial;
+      color: #eee;
+      background: #000;
+    }
+
+    #now-playing {
+      margin: 10px 0 15px 0;
+      font-size: 18px;
+      font-weight: bold;
+      color: #00ffcc;
+      text-shadow: 0 0 6px #00ffcc;
+    }
+
+    /* Playlist container almost fully transparent */
+    #playlist {
+      background: rgba(0,0,0,0.05);
+      padding: 10px 0;
+      border-radius: 6px;
+    }
+
+    /* Track rows extremely transparent */
+    .track {
+      background: rgba(0,0,0,0.08);
+      padding: 10px;
+      cursor: pointer;
+      border-bottom: 1px solid rgba(255,255,255,0.12);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .track:hover {
+      background: rgba(0,0,0,0.16);
+    }
+
+    /* Active track still visible but transparent */
+    .active {
+      background: rgba(0,0,0,0.22);
+      border-left: 4px solid #00ff99;
+    }
+
+    .new-badge {
+      color: #ff4444;
+      font-weight: bold;
+    }
+
+    .latest-badge {
+      color: #00ff99;
+      font-weight: 900;
+      text-shadow: 0 0 6px #00ff99;
+    }
+
+    .skip-btn {
+      margin-right: 10px;
+      padding: 8px 12px;
+      font-size: 14px;
+      cursor: pointer;
+    }
+
+    #shuffle-btn.active {
+      background-color: #4caf50;
+      color: #fff;
+    }
+
+    audio::-webkit-media-controls-panel {
+      background: transparent !important;
+    }
+    audio::-webkit-media-controls-enclosure {
+      background: transparent !important;
+    }
+    audio {
+      background: transparent !important;
+      color-scheme: light;
+    }
+  </style>
+</head>
+
+<body>
+
+<div id="bg"></div>
+<div id="overlay"></div>
+
+<h2>Ben's MP3 Player</h2>
+
+<button id="shuffle-btn" onclick="toggleShuffle()">Shuffle</button>
+<button class="skip-btn" onclick="skipBack()">⏪ -30s</button>
+<button class="skip-btn" onclick="skipForward()">⏩ +30s</button>
+
+<div id="now-playing">Now Playing: None</div>
+
+<audio id="player" controls preload="auto" style="width:100%; margin-bottom:20px;"></audio>
+
+<div id="playlist">
+
+  <div class="track" data-url="music/Glace40.mp3"><span>Glace40</span> <span class="latest-badge">LATEST</span></div>
+  <div class="track" data-url="music/Glace39.mp3"><span>Glace39</span> <span class="new-badge">NEW</span></div>
+
+  <div class="track" data-url="music/Glace38.mp3"><span>Glace38</span></div>
+  <div class="track" data-url="music/Glace37.mp3"><span>Glace37</span></div>
+  <div class="track" data-url="music/Glace36.mp3"><span>Glace36</span></div>
+  <div class="track" data-url="music/Glace35.mp3"><span>Glace35</span></div>
+  <div class="track" data-url="music/Glace34.mp3"><span>Glace34</span></div>
+  <div class="track" data-url="music/Glace33.mp3"><span>Glace33</span></div>
+  <div class="track" data-url="music/Glace32.mp3"><span>Glace32</span></div>
+  <div class="track" data-url="music/Glace31.mp3"><span>Glace31</span></div>
+  <div class="track" data-url="music/Glace30.mp3"><span>Glace30</span></div>
+  <div class="track" data-url="music/Glace29.mp3"><span>Glace29</span></div>
+  <div class="track" data-url="music/Glace28.mp3"><span>Glace28</span></div>
+  <div class="track" data-url="music/Glace27.mp3"><span>Glace27</span></div>
+  <div class="track" data-url="music/Glace26.mp3"><span>Glace26</span></div>
+  <div class="track" data-url="music/Glace25.mp3"><span>Glace25</span></div>
+  <div class="track" data-url="music/Glace23.mp3"><span>Glace23</span></div>
+  <div class="track" data-url="music/Glace22.mp3"><span>Glace22</span></div>
+  <div class="track" data-url="music/Glace21.mp3"><span>Glace21</span></div>
+  <div class="track" data-url="music/Glace20.mp3"><span>Glace20</span></div>
+  <div class="track" data-url="music/Glace19.mp3"><span>Glace19</span></div>
+  <div class="track" data-url="music/Glace18.mp3"><span>Glace18</span></div>
+  <div class="track" data-url="music/Glace17.mp3"><span>Glace17</span></div>
+  <div class="track" data-url="music/Glace16.mp3"><span>Glace16</span></div>
+  <div class="track" data-url="music/Glace15.mp3"><span>Glace15</span></div>
+  <div class="track" data-url="music/Glace14.mp3"><span>Glace14</span></div>
+  <div class="track" data-url="music/Glace13.mp3"><span>Glace13</span></div>
+  <div class="track" data-url="music/Glace12.mp3"><span>Glace12</span></div>
+  <div class="track" data-url="music/Glace11.mp3"><span>Glace11</span></div>
+  <div class="track" data-url="music/Glace10.mp3"><span>Glace10</span></div>
+  <div class="track" data-url="music/Glace9.mp3"><span>Glace9</span></div>
+  <div class="track" data-url="music/Glace8.mp3"><span>Glace8</span></div>
+  <div class="track" data-url="music/Glace7.mp3"><span>Glace7</span></div>
+  <div class="track" data-url="music/Glace6.mp3"><span>Glace6</span></div>
+  <div class="track" data-url="music/Glace4.mp3"><span>Glace4</span></div>
+  <div class="track" data-url="music/Glace3.mp3"><span>Glace3</span></div>
+  <div class="track" data-url="music/Glace2.mp3"><span>Glace2</span></div>
+  <div class="track" data-url="music/Glace1.mp3"><span>Glace1</span></div>
+  <div class="track" data-url="music/Glace.mp3"><span>Glace</span></div>
+  <div class="track" data-url="music/Glaace.mp3"><span>Glaace</span></div>
+
+  <div class="track" data-url="music/Joy.mp3"><span>Joy</span></div>
+
+  <div class="track" data-url="music/Jon2.mp3"><span>Jon2</span></div>
+  <div class="track" data-url="music/Jon.mp3"><span>Jon</span></div>
+
+  <div class="track" data-url="music/Extras 3.mp3"><span>Extras 3</span></div>
+  <div class="track" data-url="music/Extras 2.mp3"><span>Extras 2</span></div>
+  <div class="track" data-url="music/Extras 1.mp3"><span>Extras 1</span></div>
+
+  <div class="track" data-url="music/Amazing Grace 23.mp3"><span>Amazing Grace 23</span></div>
+  <div class="track" data-url="music/Amazing Grace 22.mp3"><span>Amazing Grace 22</span></div>
+  <div class="track" data-url="music/Amazing Grace 21.mp3"><span>Amazing Grace 21</span></div>
+  <div class="track" data-url="music/Amazing Grace X.mp3"><span>Amazing Grace X</span></div>
+  <div class="track" data-url="music/Amazing Grace 20.mp3"><span>Amazing Grace 20</span></div>
+  <div class="track" data-url="music/Amazing Grace 19.mp3"><span>Amazing Grace 19</span></div>
+  <div class="track" data-url="music/Amazing Grace 18.mp3"><span>Amazing Grace 18</span></div>
+  <div class="track" data-url="music/Amazing Grace 17.mp3"><span>Amazing Grace 17</span></div>
+  <div class="track" data-url="music/Amazing Grace 16.mp3"><span>Amazing Grace 16</span></div>
+  <div class="track" data-url="music/Amazing Grace 15.mp3"><span>Amazing Grace 15</span></div>
+  <div class="track" data-url="music/Amazing Grace 14.mp3"><span>Amazing Grace 14</span></div>
+  <div class="track" data-url="music/Amazing Grace 13.mp3"><span>Amazing Grace 13</span></div>
+  <div class="track" data-url="music/Amazing Grace 12.mp3"><span>Amazing Grace 12</span></div>
+  <div class="track" data-url="music/Amazing Grace 10.5.mp3"><span>Amazing Grace 10.5</span></div>
+  <div class="track" data-url="music/Amazing Grace 9-11.mp3"><span>Amazing Grace 9-11</span></div>
+  <div class="track" data-url="music/Amazing Grace 6-8.mp3"><span>Amazing Grace 6-8</span></div>
+  <div class="track" data-url="music/Amazing Grace 1.mp3"><span>Amazing Grace 1</span></div>
+
+</div>
+
+<script>
+const dayBackgrounds = [
+  "backgrounds/bg_day1.jpg",
+  "backgrounds/bg_day2.jpg",
+  "backgrounds/bg_day3.jpg"
+];
+
+const nightBackgrounds = [
+  "backgrounds/bg_night1.jpg",
+  "backgrounds/bg_night2.jpg",
+  "backgrounds/bg_night3.jpg"
+];
+
+const hour = new Date().getHours();
+const isDaytime = hour >= 6 && hour < 18;
+const chosenSet = isDaytime ? dayBackgrounds : nightBackgrounds;
+const chosenBackground = chosenSet[Math.floor(Math.random() * chosenSet.length)];
+
+document.getElementById("bg").style.backgroundImage = `url('${chosenBackground}')`;
+
+const player = document.getElementById("player");
+const tracks = Array.from(document.querySelectorAll(".track"));
+let currentIndex = 0;
+let shuffleEnabled = false;
+let shuffleQueue = [];
+
+let preloadAudio = new Audio();
+
+function preloadTrack(index) {
+  preloadAudio.src = tracks[index].dataset.url;
+  preloadAudio.load();
+}
+
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      const index = tracks.indexOf(entry.target);
+      if (index !== -1) preloadTrack(index);
+    }
+  });
+}, {
+  root: null,
+  rootMargin: "0px",
+  threshold: 0.1
+});
+
+tracks.forEach((track, index) => {
+  track.addEventListener("mouseenter", () => preloadTrack(index));
+  track.addEventListener("click", () => playTrack(index));
+  observer.observe(track);
+});
+
+function playTrack(index) {
+  currentIndex = index;
+  const url = tracks[index].dataset.url;
+
+  player.src = url;
+  player.load();
+  player.play().catch(() => {});
+
+  tracks.forEach(t => t.classList.remove("active"));
+  tracks[index].classList.add("active");
+
+  const name = tracks[index].querySelector("span").textContent;
+  document.getElementById("now-playing").textContent = "Now Playing: " + name;
+
+  if (shuffleEnabled && shuffleQueue.length > 0) {
+    preloadTrack(shuffleQueue[0]);
+  }
+}
+
+function reshuffle() {
+  shuffleQueue = tracks.map((_, i) => i).filter(i => i !== currentIndex);
+  shuffleQueue.sort(() => Math.random() - 0.5);
+}
+
+function toggleShuffle() {
+  shuffleEnabled = !shuffleEnabled;
+  document.getElementById("shuffle-btn").classList.toggle("active", shuffleEnabled);
+
+  if (shuffleEnabled) {
+    reshuffle();
+    preloadTrack(shuffleQueue[0]);
+    playTrack(shuffleQueue.shift());
+  }
+}
+
+player.addEventListener("ended", () => {
+  if (shuffleEnabled) {
+    if (shuffleQueue.length === 0) reshuffle();
+    playTrack(shuffleQueue.shift());
+  }
+});
+
+function skipBack() {
+  player.currentTime = Math.max(0, player.currentTime - 30);
+}
+
+function skipForward() {
+  player.currentTime = Math.min(player.duration, player.currentTime + 30);
+}
+</script>
+
+</body>
+</html>
