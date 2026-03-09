@@ -476,21 +476,19 @@ const showTracks = Array.from(document.querySelectorAll("#playlist .track"));
 let nowPlayingInterval = null;
 
 async function getCurrentTrack(stationId) {
-  if (!stationId) return "Live Stream";
+  if (!stationId) {
+    return "Live Stream";
+  }
 
   try {
-    const response = await fetch(
-      `https://lively-base-1b4d.bennyjonesy28.workers.dev/?station=${stationId}`
-    );
-
+    const response = await fetch(`https://scraper2.onlineradiobox.com/${stationId}?l=0`);
     const data = await response.json();
 
     if (data.now && data.now.artist && data.now.song) {
       return `${data.now.artist} - ${data.now.song}`;
+    } else {
+      return "Live Stream";
     }
-
-    return "Live Stream";
-
   } catch (error) {
     return "Live Stream";
   }
