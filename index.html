@@ -2,96 +2,396 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Ben's MP3 Player</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Prevent caching -->
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
 
   <style>
-    body {
-      font-family: Arial;
-      background: #000 no-repeat center center fixed;
-      background-size: cover;
-      color: #eee;
-      padding: 20px;
-      position: relative;
-    }
+/* ============================
+   BACKGROUND LAYERS
+   ============================ */
+body {
+  margin: 0;
+  padding: 20px;
+  font-family: Arial, sans-serif;
+  background: #000;
+  color: #eee;
+}
 
-    body::before {
-      content: "";
-      position: fixed;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      background: rgba(0,0,0,0.45);
-      pointer-events: none;
-      z-index: -1;
-    }
+#bg {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  background-size: cover;
+  background-position: center center;
+  background-repeat: no-repeat;
+  z-index: -3;
+}
 
-    .track {
-      padding: 10px;
-      cursor: pointer;
-      border-bottom: 1px solid #333;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      background: rgba(0,0,0,0.4);
-      transition: 0.15s;
-    }
+#overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  background: transparent;
+  z-index: -2;
+  pointer-events: none;
+}
 
-    .track:hover {
-      background: rgba(0,0,0,0.55);
-      box-shadow: 0 0 10px rgba(255,255,255,0.3);
-      transform: scale(1.02);
-    }
+/* ============================
+   RADIO BAR
+   ============================ */
+#radio-wrapper {
+  width: fit-content;
+  max-width: 450px;
+  margin-bottom: 10px;
+}
 
-    .active {
-      background: rgba(0,0,0,0.75);
-      box-shadow: 0 0 15px rgba(0,255,150,0.6);
-      border-left: 4px solid #00ff99;
-      transform: scale(1.02);
-    }
+#radio-controls {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 14px;
+  font-size: 18px;
+  transition: 0.25s ease;
+  padding: 6px 0;
+}
 
-    #shuffle-btn.active {
-      background-color: #4caf50;
-      color: #fff;
-    }
+#radio-controls.active {
+  background: rgba(0, 183, 255, 0.08);
+  box-shadow: 0 0 12px #00b7ff, 0 0 22px #0099dd;
+  padding: 10px 12px;
+  border-radius: 10px;
+}
 
-    .new-badge {
-      color: #ff4444;
-      font-weight: bold;
-    }
+.radio-icon {
+  font-size: 32px;
+  margin-right: 6px;
+}
 
-    .latest-badge {
-      color: #00ff99;
-      font-weight: 900;
-      text-shadow: 0 0 6px #00ff99;
-    }
+/* ============================
+   RADIO BUTTONS
+   ============================ */
+.radio-box-btn,
+.radio-play {
+  background: rgba(255,255,255,0.10);
+  border: none;
+  padding: 6px 12px;
+  border-radius: 999px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: 0.2s ease;
+  color: #fff;
+  font-size: 18px;
+}
 
-    .skip-btn {
-      margin-right: 10px;
-      padding: 8px 12px;
-      font-size: 14px;
-      cursor: pointer;
-    }
+.radio-box-btn:hover,
+.radio-play:hover {
+  background: rgba(255,255,255,0.20);
+  box-shadow: 0 0 10px rgba(0,183,255,0.7);
+}
+
+/* ============================
+   RADIO TEXT + LIVE TAG
+   ============================ */
+#radio-station-name.active {
+  color: #00b7ff;
+  text-shadow: 0 0 12px #00b7ff, 0 0 22px #0099dd;
+}
+
+#radio-live-tag.playing {
+  color: #ff2222;
+  text-shadow: 0 0 14px #ff0000, 0 0 22px #ff4444;
+  font-weight: bold;
+  opacity: 1;
+}
+
+#radio-live-tag.paused {
+  color: #aa5555;
+  opacity: 0.4;
+  text-shadow: none;
+}
+
+#radio-live-tag.hidden {
+  display: none;
+}
+
+/* ============================
+   RADIO VOLUME SLIDER
+   ============================ */
+#radio-volume-container {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 25px;
+}
+
+.vol-icon {
+  font-size: 20px;
+}
+
+#radio-volume {
+  width: 220px;
+}
+
+/* ============================
+   NOW PLAYING
+   ============================ */
+#now-playing {
+  margin: 20px 0 15px 0;
+  font-size: 18px;
+  font-weight: bold;
+  color: #00ffcc;
+  text-shadow: 0 0 6px #00ffcc;
+  text-align: left;
+}
+
+/* ============================
+   CUSTOM SHOW PLAYER (A2)
+   ============================ */
+#custom-show-player {
+  width: 100%;
+  margin: 20px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+#show-controls-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+#play-volume-cluster {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+#show-play-btn {
+  background: rgba(255,255,255,0.12);
+  border: none;
+  color: #fff;
+  font-size: 26px;
+  width: 48px;
+  height: 48px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+#show-play-btn:hover {
+  background: rgba(255,255,255,0.22);
+}
+
+/* Vertical slider */
+#show-volume {
+  writing-mode: bt-lr;
+  -webkit-appearance: slider-vertical;
+  width: 20px;
+  height: 60px;
+  background: transparent;
+}
+
+/* Time row */
+#show-time-row {
+  display: flex;
+  justify-content: space-between;
+  width: 120px;
+  margin: 0;
+  opacity: 0.85;
+}
+
+/* ============================
+   PLAYLIST — FULLY TRANSPARENT
+   ============================ */
+#playlist {
+  margin-top: 25px;
+  background: transparent;
+  padding: 10px 0;
+  border-radius: 6px;
+}
+
+#playlist .track {
+  padding: 10px;
+  background: transparent;
+  cursor: pointer;
+  border-bottom: none;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+#playlist .track:hover {
+  background: transparent;
+}
+
+#playlist .track.active {
+  background: transparent;
+  border-left: 4px solid #00ff99;
+}
+
+.new-badge {
+  color: #ff4444;
+  font-weight: bold;
+}
+
+.latest-badge {
+  color: #00ff99;
+  font-weight: 900;
+  text-shadow: 0 0 6px #00ff99;
+}
   </style>
 </head>
-
 <body>
 
-<h2>Ben's MP3 Player</h2>
+<!-- Background layers -->
+<div id="bg"></div>
+<div id="overlay"></div>
 
-<button id="shuffle-btn" onclick="toggleShuffle()">Shuffle</button>
+<!-- ⭐ RADIO WRAPPER ⭐ -->
+<div id="radio-wrapper">
+  <div id="radio-controls">
+    <span class="radio-icon">📻</span>
 
-<button class="skip-btn" onclick="skipBack()">⏪ -30s</button>
-<button class="skip-btn" onclick="skipForward()">⏩ +30s</button>
+    <button id="radio-prev" class="radio-box-btn">⏮</button>
+    <button id="radio-play" class="radio-play">⏵</button>
 
-<audio id="player" controls preload="auto" style="width:100%; margin-bottom:20px;"></audio>
+    <span id="radio-station-name">—</span>
+    <span id="radio-live-tag" class="hidden">LIVE</span>
 
-<div id="playlist"></div>
+    <button id="radio-next" class="radio-box-btn">⏭</button>
+  </div>
+</div>
+
+<!-- Volume slider -->
+<div id="radio-volume-container">
+  <span class="vol-icon">🔊</span>
+  <input id="radio-volume" type="range" min="0" max="1" step="0.01" value="0.4">
+</div>
+
+<!-- Now Playing -->
+<div id="now-playing">Now Playing: None</div>
+
+<!-- ⭐ CUSTOM SHOW PLAYER ⭐ -->
+<div id="custom-show-player">
+
+  <!-- Controls row with vertical volume slider -->
+  <div id="show-controls-row">
+
+    <div id="play-volume-cluster">
+      <button id="show-play-btn">⏵</button>
+
+      <!-- Vertical show-player volume slider -->
+      <input id="show-volume" type="range" min="0" max="1" step="0.01" value="1" orient="vertical">
+    </div>
+
+    <button id="shuffle-btn">Shuffle</button>
+    <button onclick="skipBack()">⏪ -30s</button>
+    <button onclick="skipForward()">⏩ +30s</button>
+  </div>
+
+  <!-- Time row -->
+  <div id="show-time-row">
+    <span id="show-time-current">00:00</span>
+    <span id="show-time-total">00:00</span>
+  </div>
+
+</div>
+
+<!-- Hidden audio engines -->
+<audio id="show-player" preload="auto"></audio>
+<audio id="radio-player" preload="none"></audio>
+
+<!-- ⭐ PLAYLIST ⭐ -->
+<div id="playlist">
+
+  <div class="track" data-url="music/Glace40.mp3"><span>Glace40</span> <span class="latest-badge">LATEST</span></div>
+  <div class="track" data-url="music/Glace39.mp3"><span>Glace39</span> <span class="new-badge">NEW</span></div>
+
+  <div class="track" data-url="music/Glace38.mp3"><span>Glace38</span></div>
+  <div class="track" data-url="music/Glace37.mp3"><span>Glace37</span></div>
+  <div class="track" data-url="music/Glace36.mp3"><span>Glace36</span></div>
+  <div class="track" data-url="music/Glace35.mp3"><span>Glace35</span></div>
+  <div class="track" data-url="music/Glace34.mp3"><span>Glace34</span></div>
+  <div class="track" data-url="music/Glace33.mp3"><span>Glace33</span></div>
+  <div class="track" data-url="music/Glace32.mp3"><span>Glace32</span></div>
+  <div class="track" data-url="music/Glace31.mp3"><span>Glace31</span></div>
+  <div class="track" data-url="music/Glace30.mp3"><span>Glace30</span></div>
+  <div class="track" data-url="music/Glace29.mp3"><span>Glace29</span></div>
+  <div class="track" data-url="music/Glace28.mp3"><span>Glace28</span></div>
+  <div class="track" data-url="music/Glace27.mp3"><span>Glace27</span></div>
+  <div class="track" data-url="music/Glace26.mp3"><span>Glace26</span></div>
+  <div class="track" data-url="music/Glace25.mp3"><span>Glace25</span></div>
+  <div class="track" data-url="music/Glace23.mp3"><span>Glace23</span></div>
+  <div class="track" data-url="music/Glace22.mp3"><span>Glace22</span></div>
+  <div class="track" data-url="music/Glace21.mp3"><span>Glace21</span></div>
+  <div class="track" data-url="music/Glace20.mp3"><span>Glace20</span></div>
+  <div class="track" data-url="music/Glace19.mp3"><span>Glace19</span></div>
+  <div class="track" data-url="music/Glace18.mp3"><span>Glace18</span></div>
+  <div class="track" data-url="music/Glace17.mp3"><span>Glace17</span></div>
+  <div class="track" data-url="music/Glace16.mp3"><span>Glace16</span></div>
+  <div class="track" data-url="music/Glace15.mp3"><span>Glace15</span></div>
+  <div class="track" data-url="music/Glace14.mp3"><span>Glace14</span></div>
+  <div class="track" data-url="music/Glace13.mp3"><span>Glace13</span></div>
+  <div class="track" data-url="music/Glace12.mp3"><span>Glace12</span></div>
+  <div class="track" data-url="music/Glace11.mp3"><span>Glace11</span></div>
+  <div class="track" data-url="music/Glace10.mp3"><span>Glace10</span></div>
+  <div class="track" data-url="music/Glace9.mp3"><span>Glace9</span></div>
+  <div class="track" data-url="music/Glace8.mp3"><span>Glace8</span></div>
+  <div class="track" data-url="music/Glace7.mp3"><span>Glace7</span></div>
+  <div class="track" data-url="music/Glace6.mp3"><span>Glace6</span></div>
+  <div class="track" data-url="music/Glace4.mp3"><span>Glace4</span></div>
+  <div class="track" data-url="music/Glace3.mp3"><span>Glace3</span></div>
+  <div class="track" data-url="music/Glace2.mp3"><span>Glace2</span></div>
+  <div class="track" data-url="music/Glace1.mp3"><span>Glace1</span></div>
+  <div class="track" data-url="music/Glace.mp3"><span>Glace</span></div>
+  <div class="track" data-url="music/Glaace.mp3"><span>Glaace</span></div>
+
+  <div class="track" data-url="music/Joy.mp3"><span>Joy</span></div>
+
+  <div class="track" data-url="music/Jon2.mp3"><span>Jon2</span></div>
+  <div class="track" data-url="music/Jon.mp3"><span>Jon</span></div>
+
+  <div class="track" data-url="music/Extras 3.mp3"><span>Extras 3</span></div>
+  <div class="track" data-url="music/Extras 2.mp3"><span>Extras 2</span></div>
+  <div class="track" data-url="music/Extras 1.mp3"><span>Extras 1</span></div>
+
+  <div class="track" data-url="music/Amazing Grace 23.mp3"><span>Amazing Grace 23</span></div>
+  <div class="track" data-url="music/Amazing Grace 22.mp3"><span>Amazing Grace 22</span></div>
+  <div class="track" data-url="music/Amazing Grace 21.mp3"><span>Amazing Grace 21</span></div>
+  <div class="track" data-url="music/Amazing Grace X.mp3"><span>Amazing Grace X</span></div>
+  <div class="track" data-url="music/Amazing Grace 20.mp3"><span>Amazing Grace 20</span></div>
+  <div class="track" data-url="music/Amazing Grace 19.mp3"><span>Amazing Grace 19</span></div>
+  <div class="track" data-url="music/Amazing Grace 18.mp3"><span>Amazing Grace 18</span></div>
+  <div class="track" data-url="music/Amazing Grace 17.mp3"><span>Amazing Grace 17</span></div>
+  <div class="track" data-url="music/Amazing Grace 16.mp3"><span>Amazing Grace 16</span></div>
+  <div class="track" data-url="music/Amazing Grace 15.mp3"><span>Amazing Grace 15</span></div>
+  <div class="track" data-url="music/Amazing Grace 14.mp3"><span>Amazing Grace 14</span></div>
+  <div class="track" data-url="music/Amazing Grace 13.mp3"><span>Amazing Grace 13</span></div>
+  <div class="track" data-url="music/Amazing Grace 12.mp3"><span>Amazing Grace 12</span></div>
+  <div class="track" data-url="music/Amazing Grace 10.5.mp3"><span>Amazing Grace 10.5</span></div>
+  <div class="track" data-url="music/Amazing Grace 9-11.mp3"><span>Amazing Grace 9-11</span></div>
+  <div class="track" data-url="music/Amazing Grace 6-8.mp3"><span>Amazing Grace 6-8</span></div>
+  <div class="track" data-url="music/Amazing Grace 1.mp3"><span>Amazing Grace 1</span></div>
+
+</div>
 
 <script>
-/* ----------------------------------------------------
-   DAY / NIGHT BACKGROUND SYSTEM
------------------------------------------------------*/
-
+/* ============================
+   DAY / NIGHT BACKGROUNDS
+   ============================ */
 const dayBackgrounds = [
   "backgrounds/bg_day1.jpg",
   "backgrounds/bg_day2.jpg",
@@ -107,170 +407,312 @@ const nightBackgrounds = [
 const hour = new Date().getHours();
 const isDaytime = hour >= 6 && hour < 18;
 const chosenSet = isDaytime ? dayBackgrounds : nightBackgrounds;
+const chosenBackground = chosenSet[Math.floor(Math.random() * chosenSet.length)];
 
-// Preload chosen set
-chosenSet.forEach(src => {
-  const img = new Image();
-  img.src = src;
-});
+document.getElementById("bg").style.backgroundImage = `url('${chosenBackground}')`;
 
-// Apply instantly
-document.body.style.backgroundImage =
-  `url('${chosenSet[Math.floor(Math.random() * chosenSet.length)]}')`;
+/* ============================
+   ELEMENT REFERENCES
+   ============================ */
+const showPlayer = document.getElementById("show-player");
+const radioPlayer = document.getElementById("radio-player");
+const nowPlaying = document.getElementById("now-playing");
 
+const radioControls = document.getElementById("radio-controls");
+const radioStationName = document.getElementById("radio-station-name");
+const radioPrev = document.getElementById("radio-prev");
+const radioNext = document.getElementById("radio-next");
+const radioPlay = document.getElementById("radio-play");
+const radioVolume = document.getElementById("radio-volume");
+const radioLiveTag = document.getElementById("radio-live-tag");
 
-/* ----------------------------------------------------
-   PLAYLIST + PLAYER LOGIC
------------------------------------------------------*/
+const shuffleBtn = document.getElementById("shuffle-btn");
+const showPlayBtn = document.getElementById("show-play-btn");
+const showVolume = document.getElementById("show-volume");
 
-const tracks = [
-  { title: "Glace40", url: "music/Glace40.mp3", isLatest: true },
-  { title: "Glace39", url: "music/Glace39.mp3", isNew: true },
-  { title: "Glace38", url: "music/Glace38.mp3" },
-  { title: "Glace37", url: "music/Glace37.mp3" },
-  { title: "Glace36", url: "music/Glace36.mp3" },
-  { title: "Glace35", url: "music/Glace35.mp3" },
-  { title: "Glace34", url: "music/Glace34.mp3" },
-  { title: "Glace33", url: "music/Glace33.mp3" },
-  { title: "Glace32", url: "music/Glace32.mp3" },
-  { title: "Glace31", url: "music/Glace31.mp3" },
-  { title: "Glace30", url: "music/Glace30.mp3" },
-  { title: "Glace29", url: "music/Glace29.mp3" },
-  { title: "Glace28", url: "music/Glace28.mp3" },
-  { title: "Glace27", url: "music/Glace27.mp3" },
-  { title: "Glace26", url: "music/Glace26.mp3" },
-  { title: "Glace25", url: "music/Glace25.mp3" },
-  { title: "Glace23", url: "music/Glace23.mp3" },
-  { title: "Glace22", url: "music/Glace22.mp3" },
-  { title: "Glace21", url: "music/Glace21.mp3" },
-  { title: "Glace20", url: "music/Glace20.mp3" },
-  { title: "Glace19", url: "music/Glace19.mp3" },
-  { title: "Glace18", url: "music/Glace18.mp3" },
-  { title: "Glace17", url: "music/Glace17.mp3" },
-  { title: "Glace16", url: "music/Glace16.mp3" },
-  { title: "Glace15", url: "music/Glace15.mp3" },
-  { title: "Glace14", url: "music/Glace14.mp3" },
-  { title: "Glace13", url: "music/Glace13.mp3" },
-  { title: "Glace12", url: "music/Glace12.mp3" },
-  { title: "Glace11", url: "music/Glace11.mp3" },
-  { title: "Glace10", url: "music/Glace10.mp3" },
-  { title: "Glace9", url: "music/Glace9.mp3" },
-  { title: "Glace8", url: "music/Glace8.mp3" },
-  { title: "Glace7", url: "music/Glace7.mp3" },
-  { title: "Glace6", url: "music/Glace6.mp3" },
-  { title: "Glace4", url: "music/Glace4.mp3" },
-  { title: "Glace3", url: "music/Glace3.mp3" },
-  { title: "Glace2", url: "music/Glace2.mp3" },
-  { title: "Glace1", url: "music/Glace1.mp3" },
-  { title: "Glace", url: "music/Glace.mp3" },
-  { title: "Glaace", url: "music/Glaace.mp3" },
-
-  { title: "Jon2", url: "music/Jon2.mp3" },
-  { title: "Jon", url: "music/Jon.mp3" },
-
-  { title: "Extras 3", url: "music/Extras 3.mp3" },
-  { title: "Extras 2", url: "music/Extras 2.mp3" },
-  { title: "Extras 1", url: "music/Extras 1.mp3" },
-
-  { title: "Amazing Grace 23", url: "music/Amazing Grace 23.mp3" },
-  { title: "Amazing Grace 22", url: "music/Amazing Grace 22.mp3" },
-  { title: "Amazing Grace 21", url: "music/Amazing Grace 21.mp3" },
-  { title: "Amazing Grace X", url: "music/Amazing Grace X.mp3" },
-  { title: "Amazing Grace 20", url: "music/Amazing Grace 20.mp3" },
-  { title: "Amazing Grace 19", url: "music/Amazing Grace 19.mp3" },
-  { title: "Amazing Grace 18", url: "music/Amazing Grace 18.mp3" },
-  { title: "Amazing Grace 17", url: "music/Amazing Grace 17.mp3" },
-  { title: "Amazing Grace 16", url: "music/Amazing Grace 16.mp3" },
-  { title: "Amazing Grace 15", url: "music/Amazing Grace 15.mp3" },
-  { title: "Amazing Grace 14", url: "music/Amazing Grace 14.mp3" },
-  { title: "Amazing Grace 13", url: "music/Amazing Grace 13.mp3" },
-  { title: "Amazing Grace 12", url: "music/Amazing Grace 12.mp3" },
-  { title: "Amazing Grace 10.5", url: "music/Amazing Grace 10.5.mp3" },
-  { title: "Amazing Grace 9-11", url: "music/Amazing Grace 9-11.mp3" },
-  { title: "Amazing Grace 6-8", url: "music/Amazing Grace 6-8.mp3" },
-  { title: "Amazing Grace 1", url: "music/Amazing Grace 1.mp3" }
+/* ============================
+   RADIO STATIONS + ORB IDs
+   ============================ */
+const radioItems = [
+  { 
+    name: "Atlantic Extra", 
+    url: "https://cwilliams78.radioca.st/stream",
+    stationId: "uk.atlanticextra"
+  },
+  { 
+    name: "Hot 103 & 97", 
+    url: "https://a9.asurahosting.com:7640/radio.mp3",
+    stationId: "us.hot1039"
+  },
+  { 
+    name: "Original Hot 103", 
+    url: "https://streaming.live365.com/a77423",
+    stationId: "us.originalhot103"
+  },
+  { 
+    name: "Atlantic 252", 
+    url: "https://stream4.themediasite.co.uk:8042/;",
+    stationId: "uk.atlantic252"
+  }
 ];
+let currentRadioIndex = 0;
+let radioVolumeLevel = 0.4;
+let radioIsPlaying = false;
 
-const playlistDiv = document.getElementById("playlist");
-const player = document.getElementById("player");
+/* ============================
+   SHUFFLE STATE
+   ============================ */
+let shuffleOn = false;
+let lastPlayedIndex = -1;
 
-let currentIndex = 0;
-let shuffleEnabled = false;
-let shuffleQueue = [];
+/* ============================
+   PLAYLIST SETUP
+   ============================ */
+const showTracks = Array.from(document.querySelectorAll("#playlist .track"));
 
-function reshuffle() {
-  shuffleQueue = Array.from({ length: tracks.length }, (_, i) => i);
-  shuffleQueue = shuffleQueue.filter(i => i !== currentIndex);
-  shuffleQueue.sort(() => Math.random() - 0.5);
+/* ============================
+   ONLINE RADIO BOX NOW PLAYING
+   ============================ */
+let nowPlayingInterval = null;
+
+async function getCurrentTrack(stationId) {
+  if (!stationId) return "Live Stream";
+
+  try {
+    const response = await fetch(
+      `https://lively-base-1b4d.bennyjonesy28.workers.dev/?station=${stationId}`
+    );
+
+    const data = await response.json();
+
+    if (data.now && data.now.artist && data.now.song) {
+      return `${data.now.artist} - ${data.now.song}`;
+    }
+
+    return "Live Stream";
+
+  } catch (error) {
+    return "Live Stream";
+  }
 }
 
-function toggleShuffle() {
-  if (!shuffleEnabled) {
-    shuffleEnabled = true;
-    document.getElementById("shuffle-btn").classList.add("active");
-    reshuffle();
-    playTrack(shuffleQueue.shift());
+async function updateRadioNowPlaying(station) {
+  if (!nowPlaying) return;
+
+  nowPlaying.textContent = "Now Playing: Loading…";
+
+  const trackText = await getCurrentTrack(station.stationId);
+
+  if (trackText === "Live Stream") {
+    nowPlaying.textContent = "Now Playing: " + station.name + " LIVE";
   } else {
-    shuffleEnabled = false;
-    document.getElementById("shuffle-btn").classList.remove("active");
+    nowPlaying.textContent = "Now Playing: " + trackText;
   }
 }
 
-tracks.forEach((track, index) => {
-  const div = document.createElement("div");
-  div.className = "track";
+/* ============================
+   SHUFFLE BUTTON
+   ============================ */
+shuffleBtn.addEventListener("click", () => {
+  shuffleOn = !shuffleOn;
+  shuffleBtn.style.backgroundColor = shuffleOn ? "#4caf50" : "";
 
-  const titleSpan = document.createElement("span");
-  titleSpan.textContent = track.title;
-  div.appendChild(titleSpan);
+  if (shuffleOn) {
+    let idx;
+    do {
+      idx = Math.floor(Math.random() * showTracks.length);
+    } while (idx === lastPlayedIndex);
 
-  if (track.isNew) {
-    const badge = document.createElement("span");
-    badge.className = "new-badge";
-    badge.textContent = "NEW";
-    div.appendChild(badge);
+    playShowTrack(idx);
   }
-
-  if (track.isLatest) {
-    const badge = document.createElement("span");
-    badge.className = "latest-badge";
-    badge.textContent = "LATEST";
-    div.appendChild(badge);
-  }
-
-  div.onclick = () => playTrack(index);
-  playlistDiv.appendChild(div);
 });
 
-function playTrack(index) {
-  currentIndex = index;
-  player.src = tracks[index].url;
-  player.load();
-  player.play().catch(() => {});
+/* ============================
+   RADIO PLAYBACK
+   ============================ */
+function playRadio(index) {
+  currentRadioIndex = (index + radioItems.length) % radioItems.length;
+  const item = radioItems[currentRadioIndex];
 
-  document.querySelectorAll(".track").forEach(t => t.classList.remove("active"));
-  playlistDiv.children[index].classList.add("active");
-}
+  const url = item.url + "?nocache=" + Date.now();
 
-function skipBack() {
-  player.currentTime = Math.max(0, player.currentTime - 30);
-}
+  // Stop show player
+  showPlayer.pause();
 
-function skipForward() {
-  player.currentTime = Math.min(player.duration, player.currentTime + 30);
-}
+  radioPlayer.src = url;
+  radioPlayer.volume = radioVolumeLevel;
+  radioPlayer.play().catch(() => {});
+  radioIsPlaying = true;
+  radioPlay.textContent = "⏸";
 
-player.addEventListener("ended", () => {
-  if (shuffleEnabled) {
-    if (shuffleQueue.length === 0) reshuffle();
-    playTrack(shuffleQueue.shift());
+  radioControls.classList.add("active");
+  radioPlay.classList.add("active");
+  radioStationName.classList.add("active");
+  radioLiveTag.className = "playing";
+
+  radioStationName.textContent = item.name;
+
+  // Update OnlineRadioBox Now Playing
+  updateRadioNowPlaying(item);
+
+  // Auto-refresh every 30 seconds
+  if (nowPlayingInterval) {
+    clearInterval(nowPlayingInterval);
   }
+
+  nowPlayingInterval = setInterval(() => {
+    updateRadioNowPlaying(item);
+  }, 30000);
+}
+
+radioPrev.addEventListener("click", () => playRadio(currentRadioIndex - 1));
+radioNext.addEventListener("click", () => playRadio(currentRadioIndex + 1));
+
+/* ============================
+   RADIO PLAY/PAUSE BUTTON
+   ============================ */
+radioPlay.addEventListener("click", () => {
+  if (!radioIsPlaying && radioStationName.textContent === "—") {
+    playRadio(0);
+    return;
+  }
+
+  if (radioIsPlaying) {
+    radioPlayer.pause();
+    radioIsPlaying = false;
+    radioPlay.textContent = "⏵";
+
+    radioControls.classList.remove("active");
+    radioPlay.classList.remove("active");
+    radioStationName.classList.remove("active");
+    radioLiveTag.className = "paused";
+
+  } else {
+    radioPlayer.play().catch(() => {});
+    radioIsPlaying = true;
+    radioPlay.textContent = "⏸";
+
+    radioControls.classList.add("active");
+    radioPlay.classList.add("active");
+    radioStationName.classList.add("active");
+    radioLiveTag.className = "playing";
+  }
+});
+
+/* ============================
+   RADIO VOLUME
+   ============================ */
+radioVolume.addEventListener("input", () => {
+  radioVolumeLevel = parseFloat(radioVolume.value);
+  radioPlayer.volume = radioVolumeLevel;
+});
+
+/* ============================
+   SKIP BUTTONS
+   ============================ */
+function skipBack() {
+  showPlayer.currentTime = Math.max(0, showPlayer.currentTime - 30);
+}
+function skipForward() {
+  showPlayer.currentTime = Math.min(showPlayer.duration || 0, showPlayer.currentTime + 30);
+}
+window.skipBack = skipBack;
+window.skipForward = skipForward;
+
+/* ============================
+   PLAY SHOW TRACK
+   ============================ */
+function playShowTrack(index) {
+  lastPlayedIndex = index;
+
+  // Stop radio + polling
+  radioPlayer.pause();
+  radioPlayer.src = "";
+  radioIsPlaying = false;
+  radioPlay.textContent = "⏵";
+
+  radioControls.classList.remove("active");
+  radioPlay.classList.remove("active");
+  radioStationName.classList.remove("active");
+  radioLiveTag.className = "hidden";
+
+  radioStationName.textContent = "—";
+
+  if (nowPlayingInterval) {
+    clearInterval(nowPlayingInterval);
+    nowPlayingInterval = null;
+  }
+
+  const track = showTracks[index];
+  showPlayer.src = track.dataset.url;
+  showPlayer.play().catch(() => {});
+
+  showTracks.forEach(t => t.classList.remove("active"));
+  track.classList.add("active");
+
+  const name = track.childNodes[0].textContent.trim();
+  if (nowPlaying) {
+    nowPlaying.textContent = "Now Playing: " + name;
+  }
+
+  showPlayBtn.textContent = "⏸";
+}
+
+/* ============================
+   CLICK TO PLAY TRACK
+   ============================ */
+showTracks.forEach((track, index) => {
+  track.addEventListener("click", () => playShowTrack(index));
+});
+
+/* ============================
+   CONTINUOUS SHUFFLE
+   ============================ */
+showPlayer.addEventListener("ended", () => {
+  if (shuffleOn) {
+    let nextIndex;
+    do {
+      nextIndex = Math.floor(Math.random() * showTracks.length);
+    } while (nextIndex === lastPlayedIndex);
+
+    playShowTrack(nextIndex);
+  }
+});
+
+/* ============================
+   CUSTOM SHOW PLAYER LOGIC
+   ============================ */
+function formatTime(sec) {
+  if (!sec || isNaN(sec)) return "00:00";
+  const m = Math.floor(sec / 60);
+  const s = Math.floor(sec % 60);
+  return `${m.toString().padStart(2,"0")}:${s.toString().padStart(2,"0")}`;
+}
+
+showPlayBtn.addEventListener("click", () => {
+  if (showPlayer.paused) {
+    showPlayer.play();
+    showPlayBtn.textContent = "⏸";
+  } else {
+    showPlayer.pause();
+    showPlayBtn.textContent = "⏵";
+  }
+});
+
+/* Show-player volume slider */
+showVolume.addEventListener("input", () => {
+  showPlayer.volume = parseFloat(showVolume.value);
+});
+
+/* Time update (timestamps only) */
+showPlayer.addEventListener("timeupdate", () => {
+  const current = showPlayer.currentTime;
+  const total = showPlayer.duration || 0;
+
+  document.getElementById("show-time-current").textContent = formatTime(current);
+  document.getElementById("show-time-total").textContent = formatTime(total);
 });
 </script>
 
 </body>
 </html>
-
-
-
-
