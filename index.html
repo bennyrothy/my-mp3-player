@@ -157,7 +157,7 @@ body {
 }
 
 /* ============================
-   CUSTOM SHOW PLAYER (A2)
+   CUSTOM SHOW PLAYER
    ============================ */
 #custom-show-player {
   width: 100%;
@@ -167,6 +167,9 @@ body {
   gap: 6px;
 }
 
+/* ============================
+   SHOW PLAYER CONTROLS
+   ============================ */
 #show-controls-row {
   display: flex;
   align-items: center;
@@ -204,13 +207,59 @@ body {
   background: transparent;
 }
 
-/* Time row */
-#show-time-row {
+/* ============================
+   ⭐ TIME + PROGRESS ROW ⭐
+   ============================ */
+#time-row {
   display: flex;
-  justify-content: space-between;
-  width: 120px;
-  margin: 0;
-  opacity: 0.85;
+  align-items: center;
+  width: 300px; /* matches control row visually */
+  margin-top: 6px;
+  font-size: 14px;
+  color: #0ff;
+}
+
+/* Left time */
+#show-time-current {
+  width: 48px;
+  text-align: left;
+}
+
+/* Progress bar between times */
+#time-progress-container {
+  flex: 1;
+  margin: 0 8px;
+}
+
+#time-progress {
+  width: 100%;
+  appearance: none;
+  height: 4px;
+  background: rgba(255,255,255,0.15);
+  border-radius: 2px;
+  cursor: pointer;
+}
+
+#time-progress::-webkit-slider-thumb {
+  appearance: none;
+  width: 10px;
+  height: 10px;
+  background: #0ff;
+  border-radius: 50%;
+}
+
+#time-progress::-moz-range-thumb {
+  width: 10px;
+  height: 10px;
+  background: #0ff;
+  border-radius: 50%;
+}
+
+/* Right time – centred under +30s */
+#show-time-total {
+  width: 48px;
+  text-align: center;
+  margin-top: -2px; /* tweak if needed */
 }
 
 /* ============================
@@ -227,18 +276,12 @@ body {
   padding: 10px;
   background: transparent;
   cursor: pointer;
-  border-bottom: none;
   display: flex;
   align-items: center;
   gap: 10px;
 }
 
-#playlist .track:hover {
-  background: transparent;
-}
-
 #playlist .track.active {
-  background: transparent;
   border-left: 4px solid #00ff99;
 }
 
@@ -255,7 +298,6 @@ body {
   </style>
 </head>
 <body>
-
 <!-- Background layers -->
 <div id="bg"></div>
 <div id="overlay"></div>
@@ -287,13 +329,11 @@ body {
 <!-- ⭐ CUSTOM SHOW PLAYER ⭐ -->
 <div id="custom-show-player">
 
-  <!-- Controls row with vertical volume slider -->
+  <!-- Controls row -->
   <div id="show-controls-row">
 
     <div id="play-volume-cluster">
       <button id="show-play-btn">⏵</button>
-
-      <!-- Vertical show-player volume slider -->
       <input id="show-volume" type="range" min="0" max="1" step="0.01" value="1" orient="vertical">
     </div>
 
@@ -302,9 +342,14 @@ body {
     <button onclick="skipForward()">⏩ +30s</button>
   </div>
 
-  <!-- Time row -->
-  <div id="show-time-row">
+  <!-- ⭐ TIME + PROGRESS BETWEEN TIMES ⭐ -->
+  <div id="time-row">
     <span id="show-time-current">00:00</span>
+
+    <div id="time-progress-container">
+      <input id="time-progress" type="range" min="0" max="100" value="0">
+    </div>
+
     <span id="show-time-total">00:00</span>
   </div>
 
@@ -364,6 +409,9 @@ body {
   <div class="track" data-url="music/Jon2.mp3"><span>Jon2</span></div>
   <div class="track" data-url="music/Jon.mp3"><span>Jon</span></div>
 
+  <div class="track" data-url="music/Extras 9.mp3"><span>Extras 9</span></div>
+  <div class="track" data-url="music/Extras 8.mp3"><span>Extras 8</span></div>
+  <div class="track" data-url="music/Extras 7.mp3"><span>Extras 7</span></div>
   <div class="track" data-url="music/Extras 3.mp3"><span>Extras 3</span></div>
   <div class="track" data-url="music/Extras 2.mp3"><span>Extras 2</span></div>
   <div class="track" data-url="music/Extras 1.mp3"><span>Extras 1</span></div>
@@ -430,31 +478,20 @@ const shuffleBtn = document.getElementById("shuffle-btn");
 const showPlayBtn = document.getElementById("show-play-btn");
 const showVolume = document.getElementById("show-volume");
 
+const timeCurrentEl = document.getElementById("show-time-current");
+const timeTotalEl = document.getElementById("show-time-total");
+const timeProgress = document.getElementById("time-progress");
+
 /* ============================
-   RADIO STATIONS + ORB IDs
+   RADIO STATIONS
    ============================ */
 const radioItems = [
-  { 
-    name: "Atlantic Extra", 
-    url: "https://cwilliams78.radioca.st/stream",
-    stationId: "uk.atlanticextra"
-  },
-  { 
-    name: "Hot 103 & 97", 
-    url: "https://a9.asurahosting.com:7640/radio.mp3",
-    stationId: "us.hot1039"
-  },
-  { 
-    name: "Original Hot 103", 
-    url: "https://streaming.live365.com/a77423",
-    stationId: "us.originalhot103"
-  },
-  { 
-    name: "Atlantic 252", 
-    url: "https://stream4.themediasite.co.uk:8042/;",
-    stationId: "uk.atlantic252"
-  }
+  { name: "Atlantic Extra", url: "https://cwilliams78.radioca.st/stream", stationId: "uk.atlanticextra" },
+  { name: "Hot 103 & 97", url: "https://a9.asurahosting.com:7640/radio.mp3", stationId: "us.hot1039" },
+  { name: "Original Hot 103", url: "https://streaming.live365.com/a77423", stationId: "us.originalhot103" },
+  { name: "Atlantic 252", url: "https://stream4.themediasite.co.uk:8042/;", stationId: "uk.atlantic252" }
 ];
+
 let currentRadioIndex = 0;
 let radioVolumeLevel = 0.4;
 let radioIsPlaying = false;
@@ -466,9 +503,33 @@ let shuffleOn = false;
 let lastPlayedIndex = -1;
 
 /* ============================
+   SHUFFLE BUTTON TOGGLE
+   ============================ */
+shuffleBtn.addEventListener("click", () => {
+  shuffleOn = !shuffleOn;
+
+  // Visual feedback
+  shuffleBtn.style.background = shuffleOn
+    ? "rgba(0,255,153,0.25)"
+    : "rgba(255,255,255,0.12)";
+
+  // ⭐ If shuffle is turned ON, instantly jump to a random track
+  if (shuffleOn) {
+    let nextIndex;
+    do {
+      nextIndex = Math.floor(Math.random() * showTracks.length);
+    } while (nextIndex === lastPlayedIndex);
+
+    playShowTrack(nextIndex);
+  }
+});
+
+
+/* ============================
    PLAYLIST SETUP
    ============================ */
 const showTracks = Array.from(document.querySelectorAll("#playlist .track"));
+
 
 /* ============================
    ONLINE RADIO BOX NOW PLAYING
@@ -476,9 +537,7 @@ const showTracks = Array.from(document.querySelectorAll("#playlist .track"));
 let nowPlayingInterval = null;
 
 async function getCurrentTrack(stationId) {
-  if (!stationId) {
-    return "Live Stream";
-  }
+  if (!stationId) return "Live Stream";
 
   try {
     const response = await fetch(`https://scraper2.onlineradiobox.com/${stationId}?l=0`);
@@ -489,41 +548,21 @@ async function getCurrentTrack(stationId) {
     } else {
       return "Live Stream";
     }
-  } catch (error) {
+  } catch {
     return "Live Stream";
   }
 }
 
 async function updateRadioNowPlaying(station) {
-  if (!nowPlaying) return;
-
   nowPlaying.textContent = "Now Playing: Loading…";
 
   const trackText = await getCurrentTrack(station.stationId);
 
-  if (trackText === "Live Stream") {
-    nowPlaying.textContent = "Now Playing: " + station.name + " LIVE";
-  } else {
-    nowPlaying.textContent = "Now Playing: " + trackText;
-  }
+  nowPlaying.textContent =
+    trackText === "Live Stream"
+      ? "Now Playing: " + station.name + " LIVE"
+      : "Now Playing: " + trackText;
 }
-
-/* ============================
-   SHUFFLE BUTTON
-   ============================ */
-shuffleBtn.addEventListener("click", () => {
-  shuffleOn = !shuffleOn;
-  shuffleBtn.style.backgroundColor = shuffleOn ? "#4caf50" : "";
-
-  if (shuffleOn) {
-    let idx;
-    do {
-      idx = Math.floor(Math.random() * showTracks.length);
-    } while (idx === lastPlayedIndex);
-
-    playShowTrack(idx);
-  }
-});
 
 /* ============================
    RADIO PLAYBACK
@@ -534,7 +573,6 @@ function playRadio(index) {
 
   const url = item.url + "?nocache=" + Date.now();
 
-  // Stop show player
   showPlayer.pause();
 
   radioPlayer.src = url;
@@ -550,13 +588,9 @@ function playRadio(index) {
 
   radioStationName.textContent = item.name;
 
-  // Update OnlineRadioBox Now Playing
   updateRadioNowPlaying(item);
 
-  // Auto-refresh every 30 seconds
-  if (nowPlayingInterval) {
-    clearInterval(nowPlayingInterval);
-  }
+  if (nowPlayingInterval) clearInterval(nowPlayingInterval);
 
   nowPlayingInterval = setInterval(() => {
     updateRadioNowPlaying(item);
@@ -623,7 +657,6 @@ window.skipForward = skipForward;
 function playShowTrack(index) {
   lastPlayedIndex = index;
 
-  // Stop radio + polling
   radioPlayer.pause();
   radioPlayer.src = "";
   radioIsPlaying = false;
@@ -649,9 +682,7 @@ function playShowTrack(index) {
   track.classList.add("active");
 
   const name = track.childNodes[0].textContent.trim();
-  if (nowPlaying) {
-    nowPlaying.textContent = "Now Playing: " + name;
-  }
+  nowPlaying.textContent = "Now Playing: " + name;
 
   showPlayBtn.textContent = "⏸";
 }
@@ -697,20 +728,35 @@ showPlayBtn.addEventListener("click", () => {
   }
 });
 
-/* Show-player volume slider */
 showVolume.addEventListener("input", () => {
   showPlayer.volume = parseFloat(showVolume.value);
 });
 
-/* Time update (timestamps only) */
+/* ============================
+   TIME + PROGRESS UPDATE
+   ============================ */
 showPlayer.addEventListener("timeupdate", () => {
   const current = showPlayer.currentTime;
   const total = showPlayer.duration || 0;
 
-  document.getElementById("show-time-current").textContent = formatTime(current);
-  document.getElementById("show-time-total").textContent = formatTime(total);
+  timeCurrentEl.textContent = formatTime(current);
+  timeTotalEl.textContent = formatTime(total);
+
+  if (total > 0) {
+    const percent = (current / total) * 100;
+    timeProgress.value = percent;
+  } else {
+    timeProgress.value = 0;
+  }
+});
+
+/* Scrub via progress between times */
+timeProgress.addEventListener("input", (e) => {
+  const total = showPlayer.duration || 0;
+  if (!total) return;
+  const percent = e.target.value;
+  showPlayer.currentTime = (percent / 100) * total;
 });
 </script>
-
 </body>
 </html>
