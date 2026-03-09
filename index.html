@@ -76,38 +76,42 @@ body {
   margin-right: 6px;
 }
 
-.radio-box-btn {
-  background: rgba(255,255,255,0.15);
+/* ============================
+   CUSTOM SVG RADIO BUTTONS
+   ============================ */
+.radio-btn {
+  background: rgba(255,255,255,0.10);
   border: none;
-  padding: 6px 14px;
-  border-radius: 6px;
+  padding: 6px 12px;
+  border-radius: 999px;
   cursor: pointer;
-  color: #fff;
-  font-size: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   transition: 0.2s ease;
 }
 
-.radio-box-btn:hover {
-  background: rgba(255,255,255,0.25);
-  box-shadow: 0 0 10px #00b7ff;
+.radio-btn:hover {
+  background: rgba(255,255,255,0.20);
+  box-shadow: 0 0 10px rgba(0,183,255,0.7);
 }
 
-.radio-play {
-  background: rgba(255,255,255,0.15);
-  border: none;
-  padding: 6px 16px;
-  border-radius: 6px;
-  cursor: pointer;
-  color: #fff;
-  font-size: 26px;
-  transition: 0.2s ease;
+.radio-icon-svg {
+  width: 22px;
+  height: 22px;
+  fill: #ffffff;
+  pointer-events: none;
 }
 
-.radio-play.active {
-  background: rgba(255,255,255,0.25);
-  box-shadow: 0 0 14px #00b7ff, 0 0 22px #0099dd;
+/* Slightly larger play button */
+#radio-play .radio-icon-svg {
+  width: 26px;
+  height: 26px;
 }
 
+/* ============================
+   RADIO TEXT + LIVE TAG
+   ============================ */
 #radio-station-name.active {
   color: #00b7ff;
   text-shadow: 0 0 12px #00b7ff, 0 0 22px #0099dd;
@@ -130,6 +134,9 @@ body {
   display: none;
 }
 
+/* ============================
+   RADIO VOLUME SLIDER
+   ============================ */
 #radio-volume-container {
   display: flex;
   justify-content: flex-start;
@@ -145,6 +152,7 @@ body {
 #radio-volume {
   width: 220px;
 }
+
 
 /* ============================
    NOW PLAYING
@@ -210,30 +218,12 @@ body {
 #show-time-row {
   display: flex;
   justify-content: space-between;
-  font-size: 14px;
-  color: #cceeff;
-  text-shadow: 0 0 4px #00b7ff;
+  width: 120px; /* adjust until perfect */
+  margin: 0;
+  opacity: 0.85;
 }
 
-/* Progress bar */
-#show-progress-container {
-  width: 100%;
-  height: 8px;
-  background: rgba(0,0,0,0.20);
-  border-radius: 4px;
-  overflow: hidden;
-  cursor: pointer;
-  border: none;
-  outline: none;
-}
 
-#show-progress-bar {
-  width: 0%;
-  height: 100%;
-  background: #0088cc;
-  box-shadow: 0 0 6px #0088cc;
-  transition: width 0.1s linear;
-}
 
 /* ============================
    PLAYLIST — FULLY TRANSPARENT
@@ -328,11 +318,6 @@ body {
   <div id="show-time-row">
     <span id="show-time-current">00:00</span>
     <span id="show-time-total">00:00</span>
-  </div>
-
-  <!-- Progress bar -->
-  <div id="show-progress-container">
-    <div id="show-progress-bar"></div>
   </div>
 
 </div>
@@ -462,7 +447,9 @@ const shuffleBtn = document.getElementById("shuffle-btn");
 const radioItems = [
   { name: "Atlantic Extra", url: "https://cwilliams78.radioca.st/stream" },
   { name: "Hot 103 & 97", url: "https://a9.asurahosting.com:7640/radio.mp3" },
-  { name: "Original Hot 103", url: "https://streaming.live365.com/a77423" }
+  { name: "Original Hot 103", url: "https://streaming.live365.com/a77423" },
+  { name: "Atlantic 252", url: "https://stream4.themediasite.co.uk:8042/;" },
+ 
 ];
 
 let currentRadioIndex = 0;
@@ -634,8 +621,6 @@ showPlayer.addEventListener("ended", () => {
    ============================ */
 const showPlayBtn = document.getElementById("show-play-btn");
 const showVolume = document.getElementById("show-volume");
-const showProgressContainer = document.getElementById("show-progress-container");
-const showProgressBar = document.getElementById("show-progress-bar");
 
 function formatTime(sec) {
   if (!sec || isNaN(sec)) return "00:00";
@@ -653,6 +638,21 @@ showPlayBtn.addEventListener("click", () => {
     showPlayBtn.textContent = "⏵";
   }
 });
+
+/* Show-player volume slider */
+showVolume.addEventListener("input", () => {
+  showPlayer.volume = parseFloat(showVolume.value);
+});
+
+/* Time update (timestamps only) */
+showPlayer.addEventListener("timeupdate", () => {
+  const current = showPlayer.currentTime;
+  const total = showPlayer.duration || 0;
+
+  document.getElementById("show-time-current").textContent = formatTime(current);
+  document.getElementById("show-time-total").textContent = formatTime(total);
+});
+
 
 /* Show-player volume slider */
 showVolume.addEventListener("input", () => {
