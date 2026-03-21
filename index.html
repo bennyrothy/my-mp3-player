@@ -365,12 +365,105 @@ const songsPlayer = document.getElementById("songs-player");
 const nowPlaying   = document.getElementById("now-playing");
 const volumeSlider = document.getElementById("volume-slider");
 
+<<<<<<< HEAD
 /* SHARED VOLUME */
 volumeSlider.addEventListener("input", () => {
   const v = parseFloat(volumeSlider.value);
   radioPlayer.volume = v;
   showPlayer.volume  = v;
   songsPlayer.volume = v;
+=======
+const shuffleBtn = document.getElementById("shuffle-btn");
+const showPlayBtn = document.getElementById("show-play-btn");
+const showVolume = document.getElementById("show-volume");
+
+const timeCurrentEl = document.getElementById("show-time-current");
+const timeTotalEl = document.getElementById("show-time-total");
+const timeProgress = document.getElementById("time-progress");
+
+/* ============================
+   RADIO STATIONS
+   ============================ */
+const radioItems = [
+  { 
+    name: "Atlantic Extra", 
+    url: "https://cwilliams78.radioca.st/stream", 
+    stationId: "uk.atlanticextra" 
+  },
+
+  { 
+    name: "Hot 103 & 97", 
+    url: "https://a9.asurahosting.com:7640/radio.mp3", 
+    stationId: "us.hot1039" 
+  },
+
+  { 
+    name: "Original Hot 103", 
+    url: "https://streaming.live365.com/a77423", 
+    stationId: "us.originalhot103" 
+  },
+
+  { 
+    name: "Greatest Hits Non-Stop", 
+    url: "http://s8.myradiostream.com:58238/listen.mp3", 
+    stationId: "scotland.greatesthits" 
+  },
+
+
+  { 
+    name: "Pride Radio New York", 
+    url: "https://stream.revma.ihrhls.com/zc3949", 
+    stationId: "us.prideradio" 
+  },
+
+  { 
+    name: "The Breeze New York", 
+    url: "https://stream.revma.ihrhls.com/zc8143", 
+    stationId: "us.thebreeze" 
+  },
+
+  { 
+    name: "Fresh Radio", 
+    url: "https://s36.radiolize.com/radio/8170/radio.mp3", 
+    stationId: "us.freshradio" 
+  }
+];
+
+
+
+
+
+let currentRadioIndex = 0;
+let radioVolumeLevel = 0.4;
+let radioIsPlaying = false;
+
+/* ============================
+   SHUFFLE STATE
+   ============================ */
+let shuffleOn = false;
+let lastPlayedIndex = -1;
+
+/* ============================
+   SHUFFLE BUTTON TOGGLE
+   ============================ */
+shuffleBtn.addEventListener("click", () => {
+  shuffleOn = !shuffleOn;
+
+  // Visual feedback
+  shuffleBtn.style.background = shuffleOn
+    ? "rgba(0,255,153,0.25)"
+    : "rgba(255,255,255,0.12)";
+
+  // ⭐ If shuffle is turned ON, instantly jump to a random track
+  if (shuffleOn) {
+    let nextIndex;
+    do {
+      nextIndex = Math.floor(Math.random() * showTracks.length);
+    } while (nextIndex === lastPlayedIndex);
+
+    playShowTrack(nextIndex);
+  }
+>>>>>>> e66c713db716966b45832e3562eb524ef5cd890f
 });
 
 /* SONGS PLAYER */
@@ -491,4 +584,7 @@ songsPlayer.addEventListener("ended", () => {
 </script>
 </body>
 </html>
+<<<<<<< HEAD
 
+=======
+>>>>>>> e66c713db716966b45832e3562eb524ef5cd890f
