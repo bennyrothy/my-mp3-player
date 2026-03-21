@@ -1,378 +1,509 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="UTF-8">
-<title>Ben’s Player</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8">
+  <title>Ben's MP3 Player</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<style>
+  <!-- Prevent caching -->
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+
+  <style>
+/* ============================
+   BACKGROUND LAYERS
+   ============================ */
 body {
   margin: 0;
   padding: 20px;
-  background: #000;
-  color: #fff;
   font-family: Arial, sans-serif;
+  background: #000;
+  color: #eee;
 }
 
-/* RADIO BAR */
+#bg {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  background-size: cover;
+  background-position: center center;
+  background-repeat: no-repeat;
+  z-index: -3;
+}
+
+#overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  background: transparent;
+  z-index: -2;
+  pointer-events: none;
+}
+
+/* ============================
+   RADIO BAR
+   ============================ */
+#radio-wrapper {
+  width: fit-content;
+  max-width: 450px;
+  margin-bottom: 10px;
+}
+
 #radio-controls {
   display: flex;
   align-items: center;
+  justify-content: flex-start;
   gap: 14px;
-  margin-bottom: 12px;
+  font-size: 18px;
+  transition: 0.25s ease;
+  padding: 6px 0;
 }
 
-.radio-btn,
-.show-btn,
-.song-btn {
-  background: rgba(255,255,255,0.12);
-  border: none;
-  padding: 8px 14px;
+#radio-controls.active {
+  background: rgba(0, 183, 255, 0.08);
+  box-shadow: 0 0 12px #00b7ff, 0 0 22px #0099dd;
+  padding: 10px 12px;
   border-radius: 10px;
+}
+
+.radio-icon {
+  font-size: 32px;
+  margin-right: 6px;
+}
+
+/* ============================
+   RADIO BUTTONS
+   ============================ */
+.radio-box-btn,
+.radio-play {
+  background: rgba(255,255,255,0.10);
+  border: none;
+  padding: 6px 12px;
+  border-radius: 999px;
   cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: 0.2s ease;
   color: #fff;
   font-size: 18px;
-  transition: 0.2s ease;
 }
 
-.radio-btn:hover,
-.show-btn:hover,
-.song-btn:hover {
-  background: rgba(255,255,255,0.22);
+.radio-box-btn:hover,
+.radio-play:hover {
+  background: rgba(255,255,255,0.20);
   box-shadow: 0 0 10px rgba(0,183,255,0.7);
 }
 
-/* SONGS PLAYER BAR */
-#songs-controls {
+/* ============================
+   RADIO TEXT + LIVE TAG
+   ============================ */
+#radio-station-name.active {
+  color: #00b7ff;
+  text-shadow: 0 0 12px #00b7ff, 0 0 22px #0099dd;
+}
+
+#radio-live-tag.playing {
+  color: #ff2222;
+  text-shadow: 0 0 14px #ff0000, 0 0 22px #ff4444;
+  font-weight: bold;
+  opacity: 1;
+}
+
+#radio-live-tag.paused {
+  color: #aa5555;
+  opacity: 0.4;
+  text-shadow: none;
+}
+
+#radio-live-tag.hidden {
+  display: none;
+}
+
+/* ============================
+   RADIO VOLUME SLIDER
+   ============================ */
+#radio-volume-container {
   display: flex;
+  justify-content: flex-start;
   align-items: center;
-  gap: 14px;
-  margin-bottom: 12px;
+  gap: 8px;
+  margin-bottom: 25px;
 }
 
-#songs-icon {
-  width: 40px;
-  height: 40px;
-  border-radius: 10px;
+.vol-icon {
+  font-size: 20px;
 }
 
-/* VOLUME */
-#volume-row {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 18px;
-}
-
-#volume-slider {
+#radio-volume {
   width: 220px;
 }
 
-/* NOW PLAYING */
+/* ============================
+   NOW PLAYING
+   ============================ */
 #now-playing {
-  margin: 10px 0 20px 0;
+  margin: 20px 0 15px 0;
   font-size: 18px;
+  font-weight: bold;
   color: #00ffcc;
   text-shadow: 0 0 6px #00ffcc;
+  text-align: left;
 }
 
-/* SHOWS PLAYER */
-#show-controls {
+/* ============================
+   CUSTOM SHOW PLAYER
+   ============================ */
+#custom-show-player {
+  width: 100%;
+  margin: 20px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* ============================
+   SHOW PLAYER CONTROLS
+   ============================ */
+#show-controls-row {
   display: flex;
   align-items: center;
-  gap: 14px;
-  margin-bottom: 12px;
+  gap: 12px;
 }
 
-/* PLAYLISTS */
-#playlist .track,
-#songs-playlist .songs-track {
-  padding: 8px 10px;
+#play-volume-cluster {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+#show-play-btn {
+  background: rgba(255,255,255,0.12);
+  border: none;
+  color: #fff;
+  font-size: 26px;
+  width: 48px;
+  height: 48px;
+  border-radius: 8px;
   cursor: pointer;
-  font-size: 14px;
+  transition: 0.2s ease;
 }
 
-#playlist .track.active,
-#songs-playlist .songs-track.active {
-  border-left: 4px solid #00ff99;
-  background: rgba(255,255,255,0.08);
+#show-play-btn:hover {
+  background: rgba(255,255,255,0.22);
 }
-</style>
+
+/* Vertical slider */
+#show-volume {
+  writing-mode: bt-lr;
+  -webkit-appearance: slider-vertical;
+  width: 20px;
+  height: 60px;
+  background: transparent;
+}
+
+/* ============================
+   ⭐ TIME + PROGRESS ROW ⭐
+   ============================ */
+#time-row {
+  display: flex;
+  align-items: center;
+  width: 300px; /* matches control row visually */
+  margin-top: 6px;
+  font-size: 14px;
+  color: #0ff;
+}
+
+/* Left time */
+#show-time-current {
+  width: 48px;
+  text-align: left;
+}
+
+/* Progress bar between times */
+#time-progress-container {
+  flex: 1;
+  margin: 0 8px;
+}
+
+#time-progress {
+  width: 100%;
+  appearance: none;
+  height: 4px;
+  background: rgba(255,255,255,0.15);
+  border-radius: 2px;
+  cursor: pointer;
+}
+
+#time-progress::-webkit-slider-thumb {
+  appearance: none;
+  width: 10px;
+  height: 10px;
+  background: #0ff;
+  border-radius: 50%;
+}
+
+#time-progress::-moz-range-thumb {
+  width: 10px;
+  height: 10px;
+  background: #0ff;
+  border-radius: 50%;
+}
+
+/* Right time – centred under +30s */
+#show-time-total {
+  width: 48px;
+  text-align: center;
+  margin-top: -2px; /* tweak if needed */
+}
+
+/* ============================
+   PLAYLIST — FULLY TRANSPARENT
+   ============================ */
+#playlist {
+  margin-top: 25px;
+  background: transparent;
+  padding: 10px 0;
+  border-radius: 6px;
+}
+
+#playlist .track {
+  padding: 10px;
+  background: transparent;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+#playlist .track.active {
+  border-left: 4px solid #00ff99;
+}
+
+.new-badge {
+  color: #ff4444;
+  font-weight: bold;
+}
+
+.latest-badge {
+  color: #00ff99;
+  font-weight: 900;
+  text-shadow: 0 0 6px #00ff99;
+}
+  </style>
 </head>
 <body>
+<!-- Background layers -->
+<div id="bg"></div>
+<div id="overlay"></div>
 
-<!-- RADIO BAR -->
-<div id="radio-controls">
-  <span style="font-size:32px;">📻</span>
-  <button id="radio-prev" class="radio-btn">⏮</button>
-  <button id="radio-play" class="radio-btn">⏵</button>
-  <button id="radio-next" class="radio-btn">⏭</button>
+<!-- ⭐ RADIO WRAPPER ⭐ -->
+<div id="radio-wrapper">
+  <div id="radio-controls">
+    <span class="radio-icon">📻</span>
+
+    <button id="radio-prev" class="radio-box-btn">⏮</button>
+    <button id="radio-play" class="radio-play">⏵</button>
+
+    <span id="radio-station-name">—</span>
+    <span id="radio-live-tag" class="hidden">LIVE</span>
+
+    <button id="radio-next" class="radio-box-btn">⏭</button>
+  </div>
 </div>
 
-<!-- SONGS PLAYER BAR (SEPARATE) -->
-<div id="songs-controls">
-  <img id="songs-icon" src="songicon.png" alt="Songs">
-  <button id="songs-prev" class="song-btn">⏮</button>
-  <button id="songs-play" class="song-btn">⏵</button>
-  <button id="songs-next" class="song-btn">⏭</button>
-  <button id="songs-shuffle" class="song-btn">Shuffle</button>
+<!-- Volume slider -->
+<div id="radio-volume-container">
+  <span class="vol-icon">🔊</span>
+  <input id="radio-volume" type="range" min="0" max="1" step="0.01" value="0.4">
 </div>
 
-<!-- SHARED VOLUME -->
-<div id="volume-row">
-  <span style="font-size:20px;">🔊</span>
-  <input id="volume-slider" type="range" min="0" max="1" step="0.01" value="0.5">
-</div>
-
+<!-- Now Playing -->
 <div id="now-playing">Now Playing: None</div>
 
-<!-- SHOWS PLAYER -->
-<div id="show-controls">
-  <button id="show-prev" class="show-btn">⏮</button>
-  <button id="show-play" class="show-btn">⏵</button>
-  <button id="show-next" class="show-btn">⏭</button>
-  <button id="show-shuffle" class="show-btn">Shuffle</button>
+<!-- ⭐ CUSTOM SHOW PLAYER ⭐ -->
+<div id="custom-show-player">
+
+  <!-- Controls row -->
+  <div id="show-controls-row">
+
+    <div id="play-volume-cluster">
+      <button id="show-play-btn">⏵</button>
+      <input id="show-volume" type="range" min="0" max="1" step="0.01" value="1" orient="vertical">
+    </div>
+
+    <button id="shuffle-btn">Shuffle</button>
+    <button onclick="skipBack()">⏪ -30s</button>
+    <button onclick="skipForward()">⏩ +30s</button>
+  </div>
+
+  <!-- ⭐ TIME + PROGRESS BETWEEN TIMES ⭐ -->
+  <div id="time-row">
+    <span id="show-time-current">00:00</span>
+
+    <div id="time-progress-container">
+      <input id="time-progress" type="range" min="0" max="100" value="0">
+    </div>
+
+    <span id="show-time-total">00:00</span>
+  </div>
+
 </div>
 
-<!-- AUDIO ENGINES -->
-<audio id="radio-player"></audio>
-<audio id="show-player"></audio>
-<audio id="songs-player"></audio>
+<!-- Hidden audio engines -->
+<audio id="show-player" preload="auto"></audio>
+<audio id="radio-player" preload="none"></audio>
 
-<!-- SHOWS PLAYLIST -->
+<!-- ⭐ PLAYLIST ⭐ -->
 <div id="playlist">
-  <div class="track" data-url="music/Glace41.mp3">Glace41</div>
-  <div class="track" data-url="music/Glace40.mp3">Glace40</div>
-  <div class="track" data-url="music/Glace39.mp3">Glace39</div>
-  <div class="track" data-url="music/Glace38.mp3">Glace38</div>
-  <div class="track" data-url="music/Glace37.mp3">Glace37</div>
-</div>
 
-<!-- SONGS PLAYLIST (HIDDEN) -->
-<div id="songs-playlist" style="display:none;">
-  <div class="songs-track" data-url="Songs/YoungMoney - BedRock.mp3">YoungMoney - BedRock</div>
-  <div class="songs-track" data-url="Songs/Adele - Chasing Pavements.mp3">Adele - Chasing Pavements</div>
-  <div class="songs-track" data-url="Songs/Alesha Dixon - Breathe Slow.mp3">Alesha Dixon - Breathe Slow</div>
-  <div class="songs-track" data-url="Songs/Alexander O'Neal - The Lovers.mp3">Alexander O'Neal - The Lovers</div>
-  <div class="songs-track" data-url="Songs/Alexandra Burke - All Night Long.mp3">Alexandra Burke - All Night Long</div>
-  <div class="songs-track" data-url="Songs/Alibi - How Much I Feel.mp3">Alibi - How Much I Feel</div>
-  <div class="songs-track" data-url="Songs/Alicia Keys - Try Sleeping With A Broken Heart.mp3">Alicia Keys - Try Sleeping With A Broken Heart</div>
-  <div class="songs-track" data-url="Songs/Amber - One More Night.mp3">Amber - One More Night</div>
-  <div class="songs-track" data-url="Songs/Andrew Gold - Never Let Her Slip Away.mp3">Andrew Gold - Never Let Her Slip Away</div>
-  <div class="songs-track" data-url="Songs/Another Level - I Want You For Myself (Full Intention Radio Edit).mp3">Another Level - I Want You For Myself (Full Intention Radio Edit)</div>
-  <div class="songs-track" data-url="Songs/Ant & Dec - Falling.mp3">Ant & Dec - Falling</div>
-  <div class="songs-track" data-url="Songs/Armand Van Helden - I Want Your Soul.mp3">Armand Van Helden - I Want Your Soul</div>
-  <div class="songs-track" data-url="Songs/Avril Lavigne - I'm With You.mp3">Avril Lavigne - I'm With You</div>
-  <div class="songs-track" data-url="Songs/Baby D - Let Me Be Your Fantasy.mp3">Baby D - Let Me Be Your Fantasy</div>
-  <div class="songs-track" data-url="Songs/Backstreet Boys - Don't Wanna Lose You Now.mp3">Backstreet Boys - Don't Wanna Lose You Now</div>
-  <div class="songs-track" data-url="Songs/Basshunter - I Miss You.mp3">Basshunter - I Miss You</div>
-  <div class="songs-track" data-url="Songs/Ben Montague - Love Like Stars.mp3">Ben Montague - Love Like Stars</div>
-  <div class="songs-track" data-url="Songs/Beyoncé - xo.mp3">Beyoncé - xo</div>
-  <div class="songs-track" data-url="Songs/Big Time Rush - No Idea.mp3">Big Time Rush - No Idea</div>
-  <div class="songs-track" data-url="Songs/Black Eyed Peas - Meet Me Halfway.mp3">Black Eyed Peas - Meet Me Halfway</div>
-  <div class="songs-track" data-url="Songs/Blue - If You Come Back.mp3">Blue - If You Come Back</div>
-  <div class="songs-track" data-url="Songs/Bob Sinclar - Love Generation.mp3">Bob Sinclar - Love Generation</div>
-  <div class="songs-track" data-url="Songs/Bobby Brown - Two Can Play That  Game.mp3">Bobby Brown - Two Can Play That  Game</div>
-  <div class="songs-track" data-url="Songs/Booty Luv - Boogie 2nite.mp3">Booty Luv - Boogie 2nite</div>
-  <div class="songs-track" data-url="Songs/Boy Meets Girl - Waiting For A Star To Fall.mp3">Boy Meets Girl - Waiting For A Star To Fall</div>
-  <div class="songs-track" data-url="Songs/Boyzone - Coming Home Now.mp3">Boyzone - Coming Home Now</div>
-  <div class="songs-track" data-url="Songs/Britney Spears - Sometimes.mp3">Britney Spears - Sometimes</div>
-  <div class="songs-track" data-url="Songs/BT - Loving You More.mp3">BT - Loving You More</div>
-  <div class="songs-track" data-url="Songs/Cahill - Trippin On You.mp3">Cahill - Trippin On You</div>
-  <div class="songs-track" data-url="Songs/Calvin Harris - Sweet Nothing.mp3">Calvin Harris - Sweet Nothing</div>
-  <div class="songs-track" data-url="Songs/Calvin Harris Ft Kelis - Bounce.mp3">Calvin Harris Ft Kelis - Bounce</div>
-  <div class="songs-track" data-url="Songs/Camila Cabello - Crying In The Club.flac">Camila Cabello - Crying In The Club</div>
-  <div class="songs-track" data-url="Songs/Cathy Dennis - C'mon And Get My Love.mp3">Cathy Dennis - C'mon And Get My Love</div>
-  <div class="songs-track" data-url="Songs/Chesney Hawkes - The One And Only.mp3">Chesney Hawkes - The One And Only</div>
-  <div class="songs-track" data-url="Songs/Chicane - Poppiholla.mp3">Chicane - Poppiholla</div>
-  <div class="songs-track" data-url="Songs/Chris Brown - With You.mp3">Chris Brown - With You</div>
-  <div class="songs-track" data-url="Songs/Chris Brown - Yeah3x.mp3">Chris Brown - Yeah3x</div>
-  <div class="songs-track" data-url="Songs/Christina Aguilera - Tell Me.mp3">Christina Aguilera - Tell Me</div>
-  <div class="songs-track" data-url="Songs/Christina Aguilera - The Voice Within.mp3">Christina Aguilera - The Voice Within</div>
-  <div class="songs-track" data-url="Songs/Christina Milian - It's All Gravy.mp3">Christina Milian - It's All Gravy</div>
-  <div class="songs-track" data-url="Songs/CJ Lewis - Sweets For My Sweet.mp3">CJ Lewis - Sweets For My Sweet</div>
-  <div class="songs-track" data-url="Songs/Craig David - Heartline.flac">Craig David - Heartline</div>
-  <div class="songs-track" data-url="Songs/Cynthia - Change On Me.mp3">Cynthia - Change On Me</div>
-  <div class="songs-track" data-url="Songs/Da Buzz - Do You Want Me.mp3">Da Buzz - Do You Want Me</div>
-  <div class="songs-track" data-url="Songs/Dannii Minogue - This Is It.mp3">Dannii Minogue - This Is It</div>
-  <div class="songs-track" data-url="Songs/David Guetta - Just A Little More Love.mp3">David Guetta - Just A Little More Love</div>
-  <div class="songs-track" data-url="Songs/David Sneddon - Don't Let Go.mp3">David Sneddon - Don't Let Go</div>
-  <div class="songs-track" data-url="Songs/Deee-Lite - Groove Is In The Heart.mp3">Deee-Lite - Groove Is In The Heart</div>
-  <div class="songs-track" data-url="Songs/Dizzee Rascal - Holiday.mp3">Dizzee Rascal - Holiday</div>
-  <div class="songs-track" data-url="Songs/DJ Dado - Ready Or Not.mp3">DJ Dado - Ready Or Not</div>
-  <div class="songs-track" data-url="Songs/DJ Sammy - Boys Of Summer.mp3">DJ Sammy - Boys Of Summer</div>
-  <div class="songs-track" data-url="Songs/Electric Light Orchestra - Confusion.mp3">Electric Light Orchestra - Confusion</div>
-  <div class="songs-track" data-url="Songs/Ellie Goulding - Still Falling For You.flac">Ellie Goulding - Still Falling For You</div>
-  <div class="songs-track" data-url="Songs/Elton John - Sacrifice.mp3">Elton John - Sacrifice</div>
-  <div class="songs-track" data-url="Songs/Emeli Sande - Next To Me.mp3">Emeli Sande - Next To Me</div>
-  <div class="songs-track" data-url="Songs/Enrique Iglesias - Do You Know.mp3">Enrique Iglesias - Do You Know</div>
-  <div class="songs-track" data-url="Songs/Enrique Iglesias - I Like It.mp3">Enrique Iglesias - I Like It</div>
-  <div class="songs-track" data-url="Songs/Erasure - A Little Respect.mp3">Erasure - A Little Respect</div>
-  <div class="songs-track" data-url="Songs/Erasure - Star.mp3">Erasure - Star</div>
-  <div class="songs-track" data-url="Songs/Eruption - I Can't Stand The Rain.mp3">Eruption - I Can't Stand The Rain</div>
-  <div class="songs-track" data-url="Songs/Eternal - Angel Of Mine.mp3">Eternal - Angel Of Mine</div>
-  <div class="songs-track" data-url="Songs/Eternal - Good Thing.mp3">Eternal - Good Thing</div>
-  <div class="songs-track" data-url="Songs/Eyeopener - Hungry Eyes.mp3">Eyeopener - Hungry Eyes</div>
-  <div class="songs-track" data-url="Songs/Faith Hill - There You'll Be.mp3">Faith Hill - There You'll Be</div>
-  <div class="songs-track" data-url="Songs/Fierce - Right Here Right Now.mp3">Fierce - Right Here Right Now</div>
-  <div class="songs-track" data-url="Songs/Flo Rida Ft David Guetta - Club Can't Handle Me.mp3">Flo Rida Ft David Guetta - Club Can't Handle Me</div>
-  <div class="songs-track" data-url="Songs/Gabrielle - Don't Need The Sun To Shine (To Make Me Smile).mp3">Gabrielle - Don't Need The Sun To Shine (To Make Me Smile)</div>
-  <div class="songs-track" data-url="Songs/Gabrielle - Give Me A Little More Time.mp3">Gabrielle - Give Me A Little More Time</div>
-  <div class="songs-track" data-url="Songs/Gabrielle - Sunshine.mp3">Gabrielle - Sunshine</div>
-  <div class="songs-track" data-url="Songs/Gary Barlow - Stronger.mp3">Gary Barlow - Stronger</div>
-  <div class="songs-track" data-url="Songs/George Harrison - My Sweet Lord.mp3">George Harrison - My Sweet Lord</div>
-  <div class="songs-track" data-url="Songs/George Michael - Amazing.mp3">George Michael - Amazing</div>
-  <div class="songs-track" data-url="Songs/George Michael - Heal The Pain.mp3">George Michael - Heal The Pain</div>
-  <div class="songs-track" data-url="Songs/Groove Armada - Song 4 Mutya.mp3">Groove Armada - Song 4 Mutya</div>
-  <div class="songs-track" data-url="Songs/Gwen Stefani - Cool.mp3">Gwen Stefani - Cool</div>
-  <div class="songs-track" data-url="Songs/Honeyz - Finally Found.mp3">Honeyz - Finally Found</div>
-  <div class="songs-track" data-url="Songs/Inna - Hot.mp3">Inna - Hot</div>
-  <div class="songs-track" data-url="Songs/James Morrison - Please Don't Stop The Rain.mp3">James Morrison - Please Don't Stop The Rain</div>
-  <div class="songs-track" data-url="Songs/James Morrison - Save Yourself.mp3">James Morrison - Save Yourself</div>
-  <div class="songs-track" data-url="Songs/James Morrison - You Make It Real.mp3">James Morrison - You Make It Real</div>
-  <div class="songs-track" data-url="Songs/James Morrison Ft Nelly Furtado - Broken Strings.mp3">James Morrison Ft Nelly Furtado - Broken Strings</div>
-  <div class="songs-track" data-url="Songs/Janet Jackson - Again.mp3">Janet Jackson - Again</div>
-  <div class="songs-track" data-url="Songs/Janet Jackson - Because Of You.mp3">Janet Jackson - Because Of You</div>
-  <div class="songs-track" data-url="Songs/Jason Derulo - The Sky's The Limit.mp3">Jason Derulo - The Sky's The Limit</div>
-  <div class="songs-track" data-url="Songs/Jay Sean - Do You Remember.mp3">Jay Sean - Do You Remember</div>
-  <div class="songs-track" data-url="Songs/Jay Sean - Down.mp3">Jay Sean - Down</div>
-  <div class="songs-track" data-url="Songs/Jay Sean Ft Nicki Minaj - 2012 (It Ain't The End).mp3">Jay Sean Ft Nicki Minaj - 2012 (It Ain't The End)</div>
-  <div class="songs-track" data-url="Songs/Jennifer Lopez - Waiting For Tonight.mp3">Jennifer Lopez - Waiting For Tonight</div>
-  <div class="songs-track" data-url="Songs/Jerome Stocks - Baby I Need Your Lovin'.mp3">Jerome Stocks - Baby I Need Your Lovin'</div>
-  <div class="songs-track" data-url="Songs/Jesse McCartney - How Do You Sleep.mp3">Jesse McCartney - How Do You Sleep</div>
-  <div class="songs-track" data-url="Songs/Jessie J - Domino.mp3">Jessie J - Domino</div>
-  <div class="songs-track" data-url="Songs/JLS - Close To You.mp3">JLS - Close To You</div>
-  <div class="songs-track" data-url="Songs/JLS - Eye's Wide Shut.mp3">JLS - Eye's Wide Shut</div>
-  <div class="songs-track" data-url="Songs/JLS - One Shot.mp3">JLS - One Shot</div>
-  <div class="songs-track" data-url="Songs/JLS - She Makes Me Wanna.mp3">JLS - She Makes Me Wanna</div>
-  <div class="songs-track" data-url="Songs/JLS - Teach Me How To Dance.mp3">JLS - Teach Me How To Dance</div>
-  <div class="songs-track" data-url="Songs/JP Cooper - Passport Home.flac">JP Cooper - Passport Home</div>
-  <div class="songs-track" data-url="Songs/Justin Bieber - Never Let You Go.mp3">Justin Bieber - Never Let You Go</div>
-  <div class="songs-track" data-url="Songs/Justin Timberlake - Can't Stop The Feeling.flac">Justin Timberlake - Can't Stop The Feeling</div>
-  <div class="songs-track" data-url="Songs/Justin Timberlake - Rock Your Body.mp3">Justin Timberlake - Rock Your Body</div>
-  <div class="songs-track" data-url="Songs/Kelly Rowland - When Love Takes Over.mp3">Kelly Rowland - When Love Takes Over</div>
-  <div class="songs-track" data-url="Songs/Kym Sims - Too Blind To See It.mp3">Kym Sims - Too Blind To See It</div>
-  <div class="songs-track" data-url="Songs/Lady Gaga - Born This Way.mp3">Lady Gaga - Born This Way</div>
-  <div class="songs-track" data-url="Songs/Lawson - When She Was Mine.mp3">Lawson - When She Was Mine</div>
-  <div class="songs-track" data-url="Songs/Lindsay Lohan - Over.mp3">Lindsay Lohan - Over</div>
-  <div class="songs-track" data-url="Songs/Little Mix - No Time For Tears.flac">Little Mix - No Time For Tears</div>
-  <div class="songs-track" data-url="Songs/Livin Joy - Follow The Rules.mp3">Livin Joy - Follow The Rules</div>
-  <div class="songs-track" data-url="Songs/Los Lobos - La Bamba.mp3">Los Lobos - La Bamba</div>
-  <div class="songs-track" data-url="Songs/Love Affair - Bringing On Back The Good Times.mp3">Love Affair - Bringing On Back The Good Times</div>
-  <div class="songs-track" data-url="Songs/Lumidee - Never Leave You.mp3">Lumidee - Never Leave You</div>
-  <div class="songs-track" data-url="Songs/M.O - Preach.mp3">M.O - Preach</div>
-  <div class="songs-track" data-url="Songs/Manfred Mann Earthband - Joybringer.mp3">Manfred Mann Earthband - Joybringer</div>
-  <div class="songs-track" data-url="Songs/Manic Street Preachers - Your Love Alone Is Not Enough.mp3">Manic Street Preachers - Your Love Alone Is Not Enough</div>
-  <div class="songs-track" data-url="Songs/Marcella Woods - Beautiful.mp3">Marcella Woods - Beautiful</div>
-  <div class="songs-track" data-url="Songs/Maroon 5 - Sugar.mp3">Maroon 5 - Sugar</div>
-  <div class="songs-track" data-url="Songs/Maroon 5 - What Lovers Do.flac">Maroon 5 - What Lovers Do</div>
-  <div class="songs-track" data-url="Songs/Mcfly - All About You.mp3">Mcfly - All About You</div>
-  <div class="songs-track" data-url="Songs/Mcfly - Star Girl.mp3">Mcfly - Star Girl</div>
-  <div class="songs-track" data-url="Songs/McFly Ft Taio Cruz - Shine A Light.mp3">McFly Ft Taio Cruz - Shine A Light</div>
-  <div class="songs-track" data-url="Songs/Meck - Thunder In My Heart.mp3">Meck - Thunder In My Heart</div>
-  <div class="songs-track" data-url="Songs/Melissa Manchester - You Should Hear How She Talks About You.mp3">Melissa Manchester - You Should Hear How She Talks About You</div>
-  <div class="songs-track" data-url="Songs/Mica Paris - Like Dreamers Do.mp3">Mica Paris - Like Dreamers Do</div>
-  <div class="songs-track" data-url="Songs/MN8 - I've Got A Little Something For You.mp3">MN8 - I've Got A Little Something For You</div>
-  <div class="songs-track" data-url="Songs/Modjo - Lady.mp3">Modjo - Lady</div>
-  <div class="songs-track" data-url="Songs/Mon A Q - Stay In Love.flac">Mon A Q - Stay In Love</div>
-  <div class="songs-track" data-url="Songs/Nelly Furtado Ft Timbaland - Promiscuous.mp3">Nelly Furtado Ft Timbaland - Promiscuous</div>
-  <div class="songs-track" data-url="Songs/New Kids On The Block - Step By Step.mp3">New Kids On The Block - Step By Step</div>
-  <div class="songs-track" data-url="Songs/Ne-Yo - Because Of You.mp3">Ne-Yo - Because Of You</div>
-  <div class="songs-track" data-url="Songs/Ne-Yo - Miss Independent.mp3">Ne-Yo - Miss Independent</div>
-  <div class="songs-track" data-url="Songs/Ne-Yo - Sexy Love.mp3">Ne-Yo - Sexy Love</div>
-  <div class="songs-track" data-url="Songs/Nickelback - Far Away.mp3">Nickelback - Far Away</div>
-  <div class="songs-track" data-url="Songs/Nicki Minaj - Super Bass.mp3">Nicki Minaj - Super Bass</div>
-  <div class="songs-track" data-url="Songs/Nicki Minaj ft Rihanna - Fly.mp3">Nicki Minaj ft Rihanna - Fly</div>
-  <div class="songs-track" data-url="Songs/Oasis - Lyla.mp3">Oasis - Lyla</div>
-  <div class="songs-track" data-url="Songs/One Direction - Change Your Ticket.mp3">One Direction - Change Your Ticket</div>
-  <div class="songs-track" data-url="Songs/Owen Paul - My Favourite Waste Of Time.mp3">Owen Paul - My Favourite Waste Of Time</div>
-  <div class="songs-track" data-url="Songs/O-Zone - Dragostea Din Tei.mp3">O-Zone - Dragostea Din Tei</div>
-  <div class="songs-track" data-url="Songs/Phd - I Won't Let You Down.mp3">Phd - I Won't Let You Down</div>
-  <div class="songs-track" data-url="Songs/Pink - Please Don't Leave Me.mp3">Pink - Please Don't Leave Me</div>
-  <div class="songs-track" data-url="Songs/Rihanna - Hate That I Love You.mp3">Rihanna - Hate That I Love You</div>
-  <div class="songs-track" data-url="Songs/Rihanna - Stay.mp3">Rihanna - Stay</div>
-  <div class="songs-track" data-url="Songs/Rihanna - What's My Name.mp3">Rihanna - What's My Name</div>
-  <div class="songs-track" data-url="Songs/Rozalla - Everybody's Free.mp3">Rozalla - Everybody's Free</div>
-  <div class="songs-track" data-url="Songs/Rudimental Ft John Newman - Feel The Love.mp3">Rudimental Ft John Newman - Feel The Love</div>
-  <div class="songs-track" data-url="Songs/Ryan Paris - Dolce Vita.mp3">Ryan Paris - Dolce Vita</div>
-  <div class="songs-track" data-url="Songs/Sabrina Johnston - Peace.mp3">Sabrina Johnston - Peace</div>
-  <div class="songs-track" data-url="Songs/Scouting For Girls - This Ain't A Love Song.mp3">Scouting For Girls - This Ain't A Love Song</div>
-  <div class="songs-track" data-url="Songs/September - Can't Get Over.mp3">September - Can't Get Over</div>
-  <div class="songs-track" data-url="Songs/Shaggy - Dance & Shout.mp3">Shaggy - Dance & Shout</div>
-  <div class="songs-track" data-url="Songs/Shalamar - I Can Make You Feel Good.mp3">Shalamar - I Can Make You Feel Good</div>
-  <div class="songs-track" data-url="Songs/Sharam - P.A.T.T. (Party All The Time).mp3">Sharam - P.A.T.T. (Party All The Time)</div>
-  <div class="songs-track" data-url="Songs/Simon Laufer - Can't Feel The Ground.mp3">Simon Laufer - Can't Feel The Ground</div>
-  <div class="songs-track" data-url="Songs/Simon Webbe - Coming Around Again.mp3">Simon Webbe - Coming Around Again</div>
-  <div class="songs-track" data-url="Songs/Simple Minds - Alive And Kicking.mp3">Simple Minds - Alive And Kicking</div>
-  <div class="songs-track" data-url="Songs/Simple Minds - Let There Be Love.mp3">Simple Minds - Let There Be Love</div>
-  <div class="songs-track" data-url="Songs/Sixpence None The Richer - Kiss Me.mp3">Sixpence None The Richer - Kiss Me</div>
-  <div class="songs-track" data-url="Songs/Snap - Rhythm Is A Dancer.mp3">Snap - Rhythm Is A Dancer</div>
-  <div class="songs-track" data-url="Songs/Soccer Anthem (Ole Ole Ole).mp3">Soccer Anthem (Ole Ole Ole)</div>
-  <div class="songs-track" data-url="Songs/Soul II Soul - Love Enough.mp3">Soul II Soul - Love Enough</div>
-  <div class="songs-track" data-url="Songs/Spirits Of Rhythm - Music.mp3">Spirits Of Rhythm - Music</div>
-  <div class="songs-track" data-url="Songs/Stereophonics - Caught By The Wind.flac">Stereophonics - Caught By The Wind</div>
-  <div class="songs-track" data-url="Songs/Sugababes - Freak Like Me.mp3">Sugababes - Freak Like Me</div>
-  <div class="songs-track" data-url="Songs/SWV - Right Here.mp3">SWV - Right Here</div>
-  <div class="songs-track" data-url="Songs/Taio Cruz - I Can Be.mp3">Taio Cruz - I Can Be</div>
-  <div class="songs-track" data-url="Songs/Take That - Greatest Day.mp3">Take That - Greatest Day</div>
-  <div class="songs-track" data-url="Songs/Take That - Rule The World.mp3">Take That - Rule The World</div>
-  <div class="songs-track" data-url="Songs/The Alan Parsons Project - Prime Time.mp3">The Alan Parsons Project - Prime Time</div>
-  <div class="songs-track" data-url="Songs/The Gap Band - Big Fun.mp3">The Gap Band - Big Fun</div>
-  <div class="songs-track" data-url="Songs/The Jacksons - Shake Your Body (Down To The Ground).mp3">The Jacksons - Shake Your Body (Down To The Ground)</div>
-  <div class="songs-track" data-url="Songs/The Saturdays - Higher.mp3">The Saturdays - Higher</div>
-  <div class="songs-track" data-url="Songs/The Saturdays - Issues.mp3">The Saturdays - Issues</div>
-  <div class="songs-track" data-url="Songs/The Shapeshifters - Lola's Theme.mp3">The Shapeshifters - Lola's Theme</div>
-  <div class="songs-track" data-url="Songs/The Tyrrel Corporation - Better Days.mp3">The Tyrrel Corporation - Better Days</div>
-  <div class="songs-track" data-url="Songs/The Wanted - Glow In The Dark.flac">The Wanted - Glow In The Dark</div>
-  <div class="songs-track" data-url="Songs/The Wanted - Gold Forever.mp3">The Wanted - Gold Forever</div>
-  <div class="songs-track" data-url="Songs/The Wanted - Lose My Mind.mp3">The Wanted - Lose My Mind</div>
-  <div class="songs-track" data-url="Songs/Thomas Helmig - Groovy Day.mp3">Thomas Helmig - Groovy Day</div>
-  <div class="songs-track" data-url="Songs/Timbaland - The Way I Are.mp3">Timbaland - The Way I Are</div>
-  <div class="songs-track" data-url="Songs/Tinchy Stryder - Take Me Back.mp3">Tinchy Stryder - Take Me Back</div>
-  <div class="songs-track" data-url="Songs/Tinchy Stryder Ft Amelle - Never Leave You.mp3">Tinchy Stryder Ft Amelle - Never Leave You</div>
-  <div class="songs-track" data-url="Songs/TLC - Dear Lie.mp3">TLC - Dear Lie</div>
-  <div class="songs-track" data-url="Songs/TLC - Way Back.flac">TLC - Way Back</div>
-  <div class="songs-track" data-url="Songs/Touché - Heaven Tonight.mp3">Touché - Heaven Tonight</div>
-  <div class="songs-track" data-url="Songs/Triple Eight - Give Me A Reason.mp3">Triple Eight - Give Me A Reason</div>
-  <div class="songs-track" data-url="Songs/True Faith - Take Me Away.mp3">True Faith - Take Me Away</div>
-  <div class="songs-track" data-url="Songs/U2 - Beautiful Day.mp3">U2 - Beautiful Day</div>
-  <div class="songs-track" data-url="Songs/U2 - Sometimes You Can't Make It On Your Own.mp3">U2 - Sometimes You Can't Make It On Your Own</div>
-  <div class="songs-track" data-url="Songs/Ultra High - Stay With Me.mp3">Ultra High - Stay With Me</div>
-  <div class="songs-track" data-url="Songs/Ultrabeat - Pretty Green Eyes.mp3">Ultrabeat - Pretty Green Eyes</div>
-  <div class="songs-track" data-url="Songs/Uniting Nations - Out Of Touch.mp3">Uniting Nations - Out Of Touch</div>
-  <div class="songs-track" data-url="Songs/Unnamed 2.mp3">Unnamed 2</div>
-  <div class="songs-track" data-url="Songs/Unnamed 3.mp3">Unnamed 3</div>
-  <div class="songs-track" data-url="Songs/Unnamed 5.mp3">Unnamed 5</div>
-  <div class="songs-track" data-url="Songs/Urban Cookie Collective - The Key The Secret.mp3">Urban Cookie Collective - The Key The Secret</div>
-  <div class="songs-track" data-url="Songs/Usher - OMG.mp3">Usher - OMG</div>
-  <div class="songs-track" data-url="Songs/Usher - Too Much.flac">Usher - Too Much</div>
-  <div class="songs-track" data-url="Songs/Westlife - Against All Odds.mp3">Westlife - Against All Odds</div>
-  <div class="songs-track" data-url="Songs/Westlife - The Difference.mp3">Westlife - The Difference</div>
-  <div class="songs-track" data-url="Songs/Westlife - Us Against The World.mp3">Westlife - Us Against The World</div>
-  <div class="songs-track" data-url="Songs/Westlife - What About Now.mp3">Westlife - What About Now</div>
-  <div class="songs-track" data-url="Songs/Wham - I'm Your Man (remix).mp3">Wham - I'm Your Man (remix)</div>
-  <div class="songs-track" data-url="Songs/When In Rome - The Promise.mp3">When In Rome - The Promise</div>
-  <div class="songs-track" data-url="Songs/Will To Power - Dreamin'.mp3">Will To Power - Dreamin'</div>
-  <div class="songs-track" data-url="Songs/Will Young - Lie Next To Me.flac">Will Young - Lie Next To Me</div>
-  <div class="songs-track" data-url="Songs/Years & Years - Eyes Shut.mp3">Years & Years - Eyes Shut</div>
+  <div class="track" data-url="music/Glace41.mp3"><span>Glace41</span> <span class="latest-badge">LATEST</span></div>
+  <div class="track" data-url="music/Glace40.mp3"><span>Glace40</span> <span class="new-badge">NEW</span></div>
+
+  <div class="track" data-url="music/Glace39.mp3"><span>Glace39</span></div>
+  <div class="track" data-url="music/Glace38.mp3"><span>Glace38</span></div>
+  <div class="track" data-url="music/Glace37.mp3"><span>Glace37</span></div>
+  <div class="track" data-url="music/Glace36.mp3"><span>Glace36</span></div>
+  <div class="track" data-url="music/Glace35.mp3"><span>Glace35</span></div>
+  <div class="track" data-url="music/Glace34.mp3"><span>Glace34</span></div>
+  <div class="track" data-url="music/Glace33.mp3"><span>Glace33</span></div>
+  <div class="track" data-url="music/Glace32.mp3"><span>Glace32</span></div>
+  <div class="track" data-url="music/Glace31.mp3"><span>Glace31</span></div>
+  <div class="track" data-url="music/Glace30.mp3"><span>Glace30</span></div>
+  <div class="track" data-url="music/Glace29.mp3"><span>Glace29</span></div>
+  <div class="track" data-url="music/Glace28.mp3"><span>Glace28</span></div>
+  <div class="track" data-url="music/Glace27.mp3"><span>Glace27</span></div>
+  <div class="track" data-url="music/Glace26.mp3"><span>Glace26</span></div>
+  <div class="track" data-url="music/Glace25.mp3"><span>Glace25</span></div>
+  <div class="track" data-url="music/Glace23.mp3"><span>Glace23</span></div>
+  <div class="track" data-url="music/Glace22.mp3"><span>Glace22</span></div>
+  <div class="track" data-url="music/Glace21.mp3"><span>Glace21</span></div>
+  <div class="track" data-url="music/Glace20.mp3"><span>Glace20</span></div>
+  <div class="track" data-url="music/Glace19.mp3"><span>Glace19</span></div>
+  <div class="track" data-url="music/Glace18.mp3"><span>Glace18</span></div>
+  <div class="track" data-url="music/Glace17.mp3"><span>Glace17</span></div>
+  <div class="track" data-url="music/Glace16.mp3"><span>Glace16</span></div>
+  <div class="track" data-url="music/Glace15.mp3"><span>Glace15</span></div>
+  <div class="track" data-url="music/Glace14.mp3"><span>Glace14</span></div>
+  <div class="track" data-url="music/Glace11.mp3"><span>Glace11</span></div>
+  <div class="track" data-url="music/Glace10.mp3"><span>Glace10</span></div>
+  <div class="track" data-url="music/Glace7.mp3"><span>Glace7</span></div>
+  <div class="track" data-url="music/Glace4.mp3"><span>Glace4</span></div>
+  <div class="track" data-url="music/Glace1.mp3"><span>Glace1</span></div>
+  <div class="track" data-url="music/Glace.mp3"><span>Glace</span></div>
+  <div class="track" data-url="music/Glaace.mp3"><span>Glaace</span></div>
+
+  <div class="track" data-url="music/Joy.mp3"><span>Joy</span></div>
+
+  <div class="track" data-url="music/MAR 2.mp3"><span>MAR 2</span><span</span></div>
+  <div class="track" data-url="music/MAR 1.mp3"><span>MAR 1</span><span</span></div>
+
+
+  <div class="track" data-url="music/Jon2.mp3"><span>Jon2</span></div>
+  <div class="track" data-url="music/Jon.mp3"><span>Jon</span></div>
+  
+  <div class="track" data-url="music/Extras 13.5.mp3"><span>Extras 13.5</span></div>
+  <div class="track" data-url="music/Extras 13.mp3"><span>Extras 13</span></div>
+  <div class="track" data-url="music/Extras 12.5.mp3"><span>Extras 12.5</span></div>
+  <div class="track" data-url="music/Extras 12.mp3"><span>Extras 12</span></div>
+  <div class="track" data-url="music/Extras 11.5.mp3"><span>Extras 11.5</span></div>
+  <div class="track" data-url="music/Extras 11.mp3"><span>Extras 11</span></div>
+  <div class="track" data-url="music/Extras 10.5.mp3"><span>Extras 10.5</span></div>
+  <div class="track" data-url="music/Extras 10.mp3"><span>Extras 10</span></div>
+  <div class="track" data-url="music/Extras 9.mp3"><span>Extras 9</span></div>
+  <div class="track" data-url="music/Extras 8.5.mp3"><span>Extras 8.5</span></div>
+  <div class="track" data-url="music/Extras 8.mp3"><span>Extras 8</span></div>
+  <div class="track" data-url="music/Extras 7.mp3"><span>Extras 7</span></div>
+  <div class="track" data-url="music/Extras 6.5.mp3"><span>Extras 6.5</span></div>
+  <div class="track" data-url="music/Extras 6.mp3"><span>Extras 6</span></div>
+  <div class="track" data-url="music/Extras 5.5.mp3"><span>Extras 5.5</span></div>
+  <div class="track" data-url="music/Extras 5.mp3"><span>Extras 5</span></div>
+  <div class="track" data-url="music/Extras 4.5.mp3"><span>Extras 4.5</span></div>
+  <div class="track" data-url="music/Extras 4.mp3"><span>Extras 4</span></div>
+  <div class="track" data-url="music/Extras 3.5.mp3"><span>Extras 3.5</span></div>
+  <div class="track" data-url="music/Extras 3.mp3"><span>Extras 3</span></div>
+  <div class="track" data-url="music/Extras 2.5.mp3"><span>Extras 2.5</span></div>
+  <div class="track" data-url="music/Extras 2.mp3"><span>Extras 2</span></div>
+  <div class="track" data-url="music/Extras 1.5.mp3"><span>Extras 1.5</span></div>
+  <div class="track" data-url="music/Extras 1.mp3"><span>Extras 1</span></div>
+
+  <div class="track" data-url="music/Amazing Grace 23.5.mp3"><span>Amazing Grace 23.5</span></div>
+  <div class="track" data-url="music/Amazing Grace 23.mp3"><span>Amazing Grace 23</span></div>
+  <div class="track" data-url="music/Amazing Grace 22.5.mp3"><span>Amazing Grace 22.5</span></div>
+  <div class="track" data-url="music/Amazing Grace 22.mp3"><span>Amazing Grace 22</span></div>
+  <div class="track" data-url="music/Amazing Grace 21.5.mp3"><span>Amazing Grace 21.5</span></div>
+  <div class="track" data-url="music/Amazing Grace 21.mp3"><span>Amazing Grace 21</span></div>
+  <div class="track" data-url="music/Amazing Grace X.mp3"><span>Amazing Grace X</span></div>
+  <div class="track" data-url="music/Amazing Grace 20.5.mp3"><span>Amazing Grace 20.5</span></div>
+  <div class="track" data-url="music/Amazing Grace 20.mp3"><span>Amazing Grace 20</span></div>
+  <div class="track" data-url="music/Amazing Grace 19.5.mp3"><span>Amazing Grace 19.5</span></div>
+  <div class="track" data-url="music/Amazing Grace 19.mp3"><span>Amazing Grace 19</span></div>
+  <div class="track" data-url="music/Amazing Grace 18.5.mp3"><span>Amazing Grace 18.5</span></div>
+  <div class="track" data-url="music/Amazing Grace 18.mp3"><span>Amazing Grace 18</span></div>
+  <div class="track" data-url="music/Amazing Grace 17.5.mp3"><span>Amazing Grace 17.5</span></div>
+  <div class="track" data-url="music/Amazing Grace 17.mp3"><span>Amazing Grace 17</span></div>
+  <div class="track" data-url="music/Amazing Grace 16.5.mp3"><span>Amazing Grace 16.5</span></div>
+  <div class="track" data-url="music/Amazing Grace 16.mp3"><span>Amazing Grace 16</span></div>
+  <div class="track" data-url="music/Amazing Grace 15.5.mp3"><span>Amazing Grace 15.5</span></div>
+  <div class="track" data-url="music/Amazing Grace 15.mp3"><span>Amazing Grace 15</span></div>
+  <div class="track" data-url="music/Amazing Grace 14.5.mp3"><span>Amazing Grace 14.5</span></div>
+  <div class="track" data-url="music/Amazing Grace 14.mp3"><span>Amazing Grace 14</span></div>
+  <div class="track" data-url="music/Amazing Grace 13.5.mp3"><span>Amazing Grace 13.5</span></div>
+  <div class="track" data-url="music/Amazing Grace 13.mp3"><span>Amazing Grace 13</span></div>
+  <div class="track" data-url="music/Amazing Grace 12.mp3"><span>Amazing Grace 12</span></div>
+  <div class="track" data-url="music/Amazing Grace 10.5.mp3"><span>Amazing Grace 10.5</span></div>
+  <div class="track" data-url="music/Amazing Grace 10.mp3"><span>Amazing Grace 10</span></div>
+  <div class="track" data-url="music/Amazing Grace 9-11 2.mp3"><span>Amazing Grace 9-11 2</span></div>
+  <div class="track" data-url="music/Amazing Grace 9-11.mp3"><span>Amazing Grace 9-11</span></div>
+  <div class="track" data-url="music/Amazing Grace 6-8 2.mp3"><span>Amazing Grace 6-8 2</span></div>
+  <div class="track" data-url="music/Amazing Grace 6-8.mp3"><span>Amazing Grace 6-8</span></div>
+  <div class="track" data-url="music/Amazing Grace 1.mp3"><span>Amazing Grace 1</span></div>
+
 </div>
 
 <script>
+/* ============================
+   DAY / NIGHT BACKGROUNDS
+   ============================ */
+const dayBackgrounds = [
+  "backgrounds/bg_day1.jpg",
+  "backgrounds/bg_day2.jpg",
+  "backgrounds/bg_day3.jpg"
+];
+
+const nightBackgrounds = [
+  "backgrounds/bg_night1.jpg",
+  "backgrounds/bg_night2.jpg",
+  "backgrounds/bg_night3.jpg"
+];
+
+const hour = new Date().getHours();
+const isDaytime = hour >= 6 && hour < 18;
+const chosenSet = isDaytime ? dayBackgrounds : nightBackgrounds;
+const chosenBackground = chosenSet[Math.floor(Math.random() * chosenSet.length)];
+
+document.getElementById("bg").style.backgroundImage = `url('${chosenBackground}')`;
+
+/* ============================
+   ELEMENT REFERENCES
+   ============================ */
+const showPlayer = document.getElementById("show-player");
 const radioPlayer = document.getElementById("radio-player");
-const showPlayer  = document.getElementById("show-player");
-const songsPlayer = document.getElementById("songs-player");
+const nowPlaying = document.getElementById("now-playing");
 
-const nowPlaying   = document.getElementById("now-playing");
-const volumeSlider = document.getElementById("volume-slider");
+const radioControls = document.getElementById("radio-controls");
+const radioStationName = document.getElementById("radio-station-name");
+const radioPrev = document.getElementById("radio-prev");
+const radioNext = document.getElementById("radio-next");
+const radioPlay = document.getElementById("radio-play");
+const radioVolume = document.getElementById("radio-volume");
+const radioLiveTag = document.getElementById("radio-live-tag");
 
-<<<<<<< HEAD
-/* SHARED VOLUME */
-volumeSlider.addEventListener("input", () => {
-  const v = parseFloat(volumeSlider.value);
-  radioPlayer.volume = v;
-  showPlayer.volume  = v;
-  songsPlayer.volume = v;
-=======
 const shuffleBtn = document.getElementById("shuffle-btn");
 const showPlayBtn = document.getElementById("show-play-btn");
 const showVolume = document.getElementById("show-volume");
@@ -463,128 +594,241 @@ shuffleBtn.addEventListener("click", () => {
 
     playShowTrack(nextIndex);
   }
->>>>>>> e66c713db716966b45832e3562eb524ef5cd890f
 });
 
-/* SONGS PLAYER */
-const songsTracks = Array.from(document.querySelectorAll("#songs-playlist .songs-track"));
-let songsOrder = [];
-let songsIndex = 0;
-let songsResume = 0;
 
-function loadSongsState() {
-  const o = localStorage.getItem("songsOrder");
-  const i = localStorage.getItem("songsIndex");
-  const t = localStorage.getItem("songsTime");
+/* ============================
+   PLAYLIST SETUP
+   ============================ */
+const showTracks = Array.from(document.querySelectorAll("#playlist .track"));
 
-  songsOrder = o ? JSON.parse(o) : songsTracks.map((_, idx) => idx);
-  songsIndex = i ? parseInt(i) : 0;
-  songsResume = t ? parseFloat(t) : 0;
-}
-loadSongsState();
 
-/* Save position every second */
-setInterval(() => {
-  if (!songsPlayer.paused && songsPlayer.src) {
-    localStorage.setItem("songsTime", songsPlayer.currentTime);
-    localStorage.setItem("songsIndex", songsIndex);
+/* ============================
+   ONLINE RADIO BOX NOW PLAYING
+   ============================ */
+let nowPlayingInterval = null;
+
+async function getCurrentTrack(stationId) {
+  if (!stationId) return "Live Stream";
+
+  try {
+    const response = await fetch(`https://scraper2.onlineradiobox.com/${stationId}?l=0`);
+    const data = await response.json();
+
+    if (data.now && data.now.artist && data.now.song) {
+      return `${data.now.artist} - ${data.now.song}`;
+    } else {
+      return "Live Stream";
+    }
+  } catch {
+    return "Live Stream";
   }
-}, 1000);
-
-/* Shuffle */
-function shuffleSongs() {
-  songsOrder = songsTracks.map((_, idx) => idx);
-  for (let i = songsOrder.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [songsOrder[i], songsOrder[j]] = [songsOrder[j], songsOrder[i]];
-  }
-  songsIndex = 0;
-  localStorage.setItem("songsOrder", JSON.stringify(songsOrder));
 }
 
-/* Highlight active */
-function highlightSong(realIndex) {
-  songsTracks.forEach(t => t.classList.remove("active"));
-  if (songsTracks[realIndex]) songsTracks[realIndex].classList.add("active");
+async function updateRadioNowPlaying(station) {
+  nowPlaying.textContent = "Now Playing: Loading…";
+
+  const trackText = await getCurrentTrack(station.stationId);
+
+  nowPlaying.textContent =
+    trackText === "Live Stream"
+      ? "Now Playing: " + station.name + " LIVE"
+      : "Now Playing: " + trackText;
 }
 
-/* Play song */
-function playSong(idx, resume = false) {
-  if (!songsTracks.length) return;
+/* ============================
+   RADIO PLAYBACK
+   ============================ */
+function playRadio(index) {
+  currentRadioIndex = (index + radioItems.length) % radioItems.length;
+  const item = radioItems[currentRadioIndex];
 
-  songsIndex = idx;
-  const real = songsOrder[songsIndex];
-  const track = songsTracks[real];
+  const url = item.url + "?nocache=" + Date.now();
 
-  radioPlayer.pause();
   showPlayer.pause();
 
-  songsPlayer.src = track.dataset.url;
-  songsPlayer.currentTime = resume ? songsResume : 0;
-  songsPlayer.play();
+  radioPlayer.src = url;
+  radioPlayer.volume = radioVolumeLevel;
+  radioPlayer.play().catch(() => {});
+  radioIsPlaying = true;
+  radioPlay.textContent = "⏸";
 
-  document.getElementById("songs-play").textContent = "⏸";
-  nowPlaying.textContent = "Now Playing Songs: " + track.textContent.trim();
-  highlightSong(real);
+  radioControls.classList.add("active");
+  radioPlay.classList.add("active");
+  radioStationName.classList.add("active");
+  radioLiveTag.className = "playing";
+
+  radioStationName.textContent = item.name;
+
+  updateRadioNowPlaying(item);
+
+  if (nowPlayingInterval) clearInterval(nowPlayingInterval);
+
+  nowPlayingInterval = setInterval(() => {
+    updateRadioNowPlaying(item);
+  }, 30000);
 }
 
-/* Auto resume last song if exists */
-if (songsTracks.length) {
-  playSong(songsIndex, true);
-}
+radioPrev.addEventListener("click", () => playRadio(currentRadioIndex - 1));
+radioNext.addEventListener("click", () => playRadio(currentRadioIndex + 1));
 
-/* Click on song in hidden list (if you ever show it) */
-songsTracks.forEach((track, realIndex) => {
-  track.addEventListener("click", () => {
-    const idx = songsOrder.indexOf(realIndex);
-    if (idx !== -1) playSong(idx, false);
-  });
-});
-
-/* Buttons */
-document.getElementById("songs-play").addEventListener("click", () => {
-  if (!songsPlayer.src) {
-    playSong(0);
+/* ============================
+   RADIO PLAY/PAUSE BUTTON
+   ============================ */
+radioPlay.addEventListener("click", () => {
+  if (!radioIsPlaying && radioStationName.textContent === "—") {
+    playRadio(0);
     return;
   }
-  if (songsPlayer.paused) {
-    songsPlayer.play();
-    document.getElementById("songs-play").textContent = "⏸";
+
+  if (radioIsPlaying) {
+    radioPlayer.pause();
+    radioIsPlaying = false;
+    radioPlay.textContent = "⏵";
+
+    radioControls.classList.remove("active");
+    radioPlay.classList.remove("active");
+    radioStationName.classList.remove("active");
+    radioLiveTag.className = "paused";
+
   } else {
-    songsPlayer.pause();
-    document.getElementById("songs-play").textContent = "⏵";
+    radioPlayer.play().catch(() => {});
+    radioIsPlaying = true;
+    radioPlay.textContent = "⏸";
+
+    radioControls.classList.add("active");
+    radioPlay.classList.add("active");
+    radioStationName.classList.add("active");
+    radioLiveTag.className = "playing";
   }
 });
 
-document.getElementById("songs-next").addEventListener("click", () => {
-  if (songsIndex < songsOrder.length - 1) {
-    playSong(songsIndex + 1);
+/* ============================
+   RADIO VOLUME
+   ============================ */
+radioVolume.addEventListener("input", () => {
+  radioVolumeLevel = parseFloat(radioVolume.value);
+  radioPlayer.volume = radioVolumeLevel;
+});
+
+/* ============================
+   SKIP BUTTONS
+   ============================ */
+function skipBack() {
+  showPlayer.currentTime = Math.max(0, showPlayer.currentTime - 30);
+}
+function skipForward() {
+  showPlayer.currentTime = Math.min(showPlayer.duration || 0, showPlayer.currentTime + 30);
+}
+window.skipBack = skipBack;
+window.skipForward = skipForward;
+
+/* ============================
+   PLAY SHOW TRACK
+   ============================ */
+function playShowTrack(index) {
+  lastPlayedIndex = index;
+
+  radioPlayer.pause();
+  radioPlayer.src = "";
+  radioIsPlaying = false;
+  radioPlay.textContent = "⏵";
+
+  radioControls.classList.remove("active");
+  radioPlay.classList.remove("active");
+  radioStationName.classList.remove("active");
+  radioLiveTag.className = "hidden";
+
+  radioStationName.textContent = "—";
+
+  if (nowPlayingInterval) {
+    clearInterval(nowPlayingInterval);
+    nowPlayingInterval = null;
+  }
+
+  const track = showTracks[index];
+  showPlayer.src = track.dataset.url;
+  showPlayer.play().catch(() => {});
+
+  showTracks.forEach(t => t.classList.remove("active"));
+  track.classList.add("active");
+
+  const name = track.childNodes[0].textContent.trim();
+  nowPlaying.textContent = "Now Playing: " + name;
+
+  showPlayBtn.textContent = "⏸";
+}
+
+/* ============================
+   CLICK TO PLAY TRACK
+   ============================ */
+showTracks.forEach((track, index) => {
+  track.addEventListener("click", () => playShowTrack(index));
+});
+
+/* ============================
+   CONTINUOUS SHUFFLE
+   ============================ */
+showPlayer.addEventListener("ended", () => {
+  if (shuffleOn) {
+    let nextIndex;
+    do {
+      nextIndex = Math.floor(Math.random() * showTracks.length);
+    } while (nextIndex === lastPlayedIndex);
+
+    playShowTrack(nextIndex);
   }
 });
 
-document.getElementById("songs-prev").addEventListener("click", () => {
-  if (songsIndex > 0) {
-    playSong(songsIndex - 1);
-  }
-});
+/* ============================
+   CUSTOM SHOW PLAYER LOGIC
+   ============================ */
+function formatTime(sec) {
+  if (!sec || isNaN(sec)) return "00:00";
+  const m = Math.floor(sec / 60);
+  const s = Math.floor(sec % 60);
+  return `${m.toString().padStart(2,"0")}:${s.toString().padStart(2,"0")}`;
+}
 
-document.getElementById("songs-shuffle").addEventListener("click", () => {
-  shuffleSongs();
-  playSong(0);
-});
-
-/* Auto next */
-songsPlayer.addEventListener("ended", () => {
-  if (songsIndex < songsOrder.length - 1) {
-    playSong(songsIndex + 1);
+showPlayBtn.addEventListener("click", () => {
+  if (showPlayer.paused) {
+    showPlayer.play();
+    showPlayBtn.textContent = "⏸";
   } else {
-    document.getElementById("songs-play").textContent = "⏵";
+    showPlayer.pause();
+    showPlayBtn.textContent = "⏵";
   }
+});
+
+showVolume.addEventListener("input", () => {
+  showPlayer.volume = parseFloat(showVolume.value);
+});
+
+/* ============================
+   TIME + PROGRESS UPDATE
+   ============================ */
+showPlayer.addEventListener("timeupdate", () => {
+  const current = showPlayer.currentTime;
+  const total = showPlayer.duration || 0;
+
+  timeCurrentEl.textContent = formatTime(current);
+  timeTotalEl.textContent = formatTime(total);
+
+  if (total > 0) {
+    const percent = (current / total) * 100;
+    timeProgress.value = percent;
+  } else {
+    timeProgress.value = 0;
+  }
+});
+
+/* Scrub via progress between times */
+timeProgress.addEventListener("input", (e) => {
+  const total = showPlayer.duration || 0;
+  if (!total) return;
+  const percent = e.target.value;
+  showPlayer.currentTime = (percent / 100) * total;
 });
 </script>
 </body>
 </html>
-<<<<<<< HEAD
-
-=======
->>>>>>> e66c713db716966b45832e3562eb524ef5cd890f
