@@ -213,19 +213,17 @@ body {
 #time-row {
   display: flex;
   align-items: center;
-  width: 300px; /* matches control row visually */
+  width: 300px;
   margin-top: 6px;
   font-size: 14px;
   color: #0ff;
 }
 
-/* Left time */
 #show-time-current {
   width: 48px;
   text-align: left;
 }
 
-/* Progress bar between times */
 #time-progress-container {
   flex: 1;
   margin: 0 8px;
@@ -253,13 +251,6 @@ body {
   height: 10px;
   background: #0ff;
   border-radius: 50%;
-}
-
-/* Right time – centred under +30s */
-#show-time-total {
-  width: 48px;
-  text-align: center;
-  margin-top: -2px; /* tweak if needed */
 }
 
 /* ============================
@@ -295,8 +286,140 @@ body {
   font-weight: 900;
   text-shadow: 0 0 6px #00ff99;
 }
+
+/* ============================
+   SONGS PLAYER (YOUR PERFECT ONE)
+   ============================ */
+#songs-wrapper {
+  width: fit-content;
+  max-width: 450px;
+  margin-bottom: 6px;
+}
+
+#songs-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0;
+  background: none;
+  box-shadow: none;
+  border-radius: 0;
+}
+
+#songs-controls.active {
+  background: rgba(0, 183, 255, 0.08);
+  box-shadow: 0 0 12px #00b7ff, 0 0 22px #0099dd;
+  padding: 10px 12px;
+  border-radius: 10px;
+}
+
+#songs-controls.active #songs-icon-box {
+  box-shadow: 0 0 12px #00e0ff, 0 0 22px #00b3b3;
+}
+
+#songs-icon-box {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #00e0ff, #00b3b3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#songs-icon-box img {
+  width: 26px;
+  height: 26px;
+}
+
+.songs-round-btn {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255,255,255,0.10);
+  color: #fff;
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.songs-round-btn:hover {
+  background: rgba(255,255,255,0.20);
+  box-shadow: 0 0 10px rgba(0,183,255,0.7);
+}
+
+.songs-round-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+  box-shadow: none !important;
+}
+
+#songs-shuffle {
+  border-radius: 999px;
+  padding: 6px 14px;
+  border: none;
+  background: rgba(255,255,255,0.10);
+  color: #fff;
+  cursor: pointer;
+  transition: 0.2s ease;
+  font-size: 14px;
+}
+
+#songs-shuffle:hover {
+  background: rgba(255,255,255,0.20);
+  box-shadow: 0 0 10px rgba(0,183,255,0.7);
+}
+
+.songs-shuffle-active {
+  background: rgba(0,183,255,0.30) !important;
+  box-shadow: 0 0 12px #00b7ff, 0 0 22px #0099dd !important;
+}
+
+#songs-progress-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 8px 0;
+}
+
+#songs-progress {
+  width: 180px;
+  height: 4px;
+  appearance: none;
+  background: rgba(255,255,255,0.15);
+  border-radius: 2px;
+}
+
+#songs-progress::-webkit-slider-thumb {
+  appearance: none;
+  width: 10px;
+  height: 10px;
+  background: #0ff;
+  border-radius: 50%;
+}
+
+#songs-current-time,
+#songs-duration {
+  width: 48px;
+  text-align: center;
+  font-size: 14px;
+  color: #0ff;
+}
+
+#songs-now-playing {
+  margin: 6px 0 15px 0;
+  font-size: 18px;
+  font-weight: bold;
+  color: #00ffcc;
+  text-shadow: 0 0 6px #00ffcc;
+}
   </style>
 </head>
+
 <body>
 <!-- Background layers -->
 <div id="bg"></div>
@@ -317,13 +440,35 @@ body {
   </div>
 </div>
 
-<!-- Volume slider -->
+<!-- ⭐ SONGS PLAYER (between radio and radio volume) ⭐ -->
+<div id="songs-wrapper">
+  <div id="songs-controls">
+    <div id="songs-icon-box">
+      <img src="songicon.png" alt="Songs Icon">
+    </div>
+
+    <button id="songs-play" class="songs-round-btn" disabled>⏵</button>
+    <button id="songs-next" class="songs-round-btn" disabled>⏭</button>
+
+    <button id="songs-shuffle">Shuffle</button>
+  </div>
+</div>
+
+<div id="songs-extra">
+  <div id="songs-progress-container">
+    <span id="songs-current-time">00:00</span>
+    <input id="songs-progress" type="range" min="0" max="100" value="0">
+    <span id="songs-duration">00:00</span>
+  </div>
+</div>
+
+<!-- ⭐ SHARED VOLUME SLIDER ⭐ -->
 <div id="radio-volume-container">
   <span class="vol-icon">🔊</span>
   <input id="radio-volume" type="range" min="0" max="1" step="0.01" value="0.4">
 </div>
 
-<!-- Now Playing -->
+<!-- Now Playing (Radio + Show) -->
 <div id="now-playing">Now Playing: None</div>
 
 <!-- ⭐ CUSTOM SHOW PLAYER ⭐ -->
@@ -358,6 +503,7 @@ body {
 <!-- Hidden audio engines -->
 <audio id="show-player" preload="auto"></audio>
 <audio id="radio-player" preload="none"></audio>
+<audio id="songs-audio" preload="auto"></audio>
 
 <!-- ⭐ PLAYLIST ⭐ -->
 <div id="playlist">
@@ -397,16 +543,14 @@ body {
   <div class="track" data-url="music/Glace1.mp3"><span>Glace1</span></div>
   <div class="track" data-url="music/Glace.mp3"><span>Glace</span></div>
   <div class="track" data-url="music/Glaace.mp3"><span>Glaace</span></div>
-
   <div class="track" data-url="music/Joy.mp3"><span>Joy</span></div>
 
-  <div class="track" data-url="music/MAR 2.mp3"><span>MAR 2</span><span</span></div>
-  <div class="track" data-url="music/MAR 1.mp3"><span>MAR 1</span><span</span></div>
-
+  <div class="track" data-url="music/MAR 2.mp3"><span>MAR 2</span></div>
+  <div class="track" data-url="music/MAR 1.mp3"><span>MAR 1</span></div>
 
   <div class="track" data-url="music/Jon2.mp3"><span>Jon2</span></div>
   <div class="track" data-url="music/Jon.mp3"><span>Jon</span></div>
-  
+
   <div class="track" data-url="music/Extras 13.5.mp3"><span>Extras 13.5</span></div>
   <div class="track" data-url="music/Extras 13.mp3"><span>Extras 13</span></div>
   <div class="track" data-url="music/Extras 12.5.mp3"><span>Extras 12.5</span></div>
@@ -516,60 +660,21 @@ const timeProgress = document.getElementById("time-progress");
    RADIO STATIONS
    ============================ */
 const radioItems = [
-  { 
-    name: "Atlantic Extra", 
-    url: "https://cwilliams78.radioca.st/stream", 
-    stationId: "uk.atlanticextra" 
-  },
-
-  { 
-    name: "Hot 103 & 97", 
-    url: "https://a9.asurahosting.com:7640/radio.mp3", 
-    stationId: "us.hot1039" 
-  },
-
-  { 
-    name: "Original Hot 103", 
-    url: "https://streaming.live365.com/a77423", 
-    stationId: "us.originalhot103" 
-  },
-
-  { 
-    name: "Greatest Hits Non-Stop", 
-    url: "http://s8.myradiostream.com:58238/listen.mp3", 
-    stationId: "scotland.greatesthits" 
-  },
-
-
-  { 
-    name: "Pride Radio New York", 
-    url: "https://stream.revma.ihrhls.com/zc3949", 
-    stationId: "us.prideradio" 
-  },
-
-  { 
-    name: "The Breeze New York", 
-    url: "https://stream.revma.ihrhls.com/zc8143", 
-    stationId: "us.thebreeze" 
-  },
-
-  { 
-    name: "Fresh Radio", 
-    url: "https://s36.radiolize.com/radio/8170/radio.mp3", 
-    stationId: "us.freshradio" 
-  }
+  { name: "Atlantic Extra", url: "https://cwilliams78.radioca.st/stream", stationId: "uk.atlanticextra" },
+  { name: "Hot 103 & 97", url: "https://a9.asurahosting.com:7640/radio.mp3", stationId: "us.hot1039" },
+  { name: "Original Hot 103", url: "https://streaming.live365.com/a77423", stationId: "us.originalhot103" },
+  { name: "Greatest Hits Non-Stop", url: "http://s8.myradiostream.com:58238/listen.mp3", stationId: "scotland.greatesthits" },
+  { name: "Pride Radio New York", url: "https://stream.revma.ihrhls.com/zc3949", stationId: "us.prideradio" },
+  { name: "The Breeze New York", url: "https://stream.revma.ihrhls.com/zc8143", stationId: "us.thebreeze" },
+  { name: "Fresh Radio", url: "https://s36.radiolize.com/radio/8170/radio.mp3", stationId: "us.freshradio" }
 ];
-
-
-
-
 
 let currentRadioIndex = 0;
 let radioVolumeLevel = 0.4;
 let radioIsPlaying = false;
 
 /* ============================
-   SHUFFLE STATE
+   SHUFFLE STATE (SHOW PLAYER)
    ============================ */
 let shuffleOn = false;
 let lastPlayedIndex = -1;
@@ -580,12 +685,10 @@ let lastPlayedIndex = -1;
 shuffleBtn.addEventListener("click", () => {
   shuffleOn = !shuffleOn;
 
-  // Visual feedback
   shuffleBtn.style.background = shuffleOn
     ? "rgba(0,255,153,0.25)"
     : "rgba(255,255,255,0.12)";
 
-  // ⭐ If shuffle is turned ON, instantly jump to a random track
   if (shuffleOn) {
     let nextIndex;
     do {
@@ -596,12 +699,10 @@ shuffleBtn.addEventListener("click", () => {
   }
 });
 
-
 /* ============================
    PLAYLIST SETUP
    ============================ */
 const showTracks = Array.from(document.querySelectorAll("#playlist .track"));
-
 
 /* ============================
    ONLINE RADIO BOX NOW PLAYING
@@ -712,7 +813,7 @@ radioVolume.addEventListener("input", () => {
 });
 
 /* ============================
-   SKIP BUTTONS
+   SKIP BUTTONS (SHOW PLAYER)
    ============================ */
 function skipBack() {
   showPlayer.currentTime = Math.max(0, showPlayer.currentTime - 30);
@@ -829,6 +930,378 @@ timeProgress.addEventListener("input", (e) => {
   const percent = e.target.value;
   showPlayer.currentTime = (percent / 100) * total;
 });
+
+/* ============================
+   ⭐ SONGS PLAYER SCRIPT ⭐
+   ============================ */
+(function () {
+
+  /* ============================
+     SONG LIST PLACEHOLDER
+     ============================ */
+  const songsList = [
+  "Songs/DJ Sammy - Boys Of Summer.mp3",
+  "Songs/Adele - Chasing Pavements.mp3",
+  "Songs/Alesha Dixon - Breathe Slow.mp3",
+  "Songs/Alexander O'Neal - The Lovers.mp3",
+  "Songs/Alexandra Burke - All Night Long.mp3",
+  "Songs/Alibi - How Much I Feel.mp3",
+  "Songs/Alicia Keys - Try Sleeping With A Broken Heart.mp3",
+  "Songs/Amber - One More Night.mp3",
+  "Songs/Andrew Gold - Never Let Her Slip Away.mp3",
+  "Songs/Another Level - I Want You For Myself (Full Intention Radio Edit).mp3",
+  "Songs/Ant & Dec - Falling.mp3",
+  "Songs/Armand Van Helden - I Want Your Soul.mp3",
+  "Songs/Avril Lavigne - I'm With You.mp3",
+  "Songs/Baby D - Let Me Be Your Fantasy.mp3",
+  "Songs/Backstreet Boys - Don't Wanna Lose You Now.mp3",
+  "Songs/Basshunter - I Miss You.mp3",
+  "Songs/Ben Montague - Love Like Stars.mp3",
+  "Songs/Beyoncé - xo.mp3",
+  "Songs/Big Time Rush - No Idea.mp3",
+  "Songs/Black Eyed Peas - Meet Me Halfway.mp3",
+  "Songs/Blue - If You Come Back.mp3",
+  "Songs/Bob Sinclar - Love Generation.mp3",
+  "Songs/Bobby Brown - Two Can Play That  Game.mp3",
+  "Songs/Booty Luv - Boogie 2nite.mp3",
+  "Songs/Boy Meets Girl - Waiting For A Star To Fall.mp3",
+  "Songs/Boyzone - Coming Home Now.mp3",
+  "Songs/Britney Spears - Sometimes.mp3",
+  "Songs/BT - Loving You More.mp3",
+  "Songs/Cahill - Trippin On You.mp3",
+  "Songs/Calvin Harris - Sweet Nothing.mp3",
+  "Songs/Calvin Harris Ft Kelis - Bounce.mp3",
+  "Songs/Camila Cabello - Crying In The Club.flac",
+  "Songs/Cathy Dennis - C'mon And Get My Love.mp3",
+  "Songs/Chesney Hawkes - The One And Only.mp3",
+  "Songs/Chicane - Poppiholla.mp3",
+  "Songs/Chris Brown - With You.mp3",
+  "Songs/Chris Brown - Yeah3x.mp3",
+  "Songs/Christina Aguilera - Tell Me.mp3",
+  "Songs/Christina Aguilera - The Voice Within.mp3",
+  "Songs/Christina Milian - It's All Gravy.mp3",
+  "Songs/CJ Lewis - Sweets For My Sweet.mp3",
+  "Songs/Craig David - Heartline.flac",
+  "Songs/Cynthia - Change On Me.mp3",
+  "Songs/Da Buzz - Do You Want Me.mp3",
+  "Songs/Dannii Minogue - This Is It.mp3",
+  "Songs/David Guetta - Just A Little More Love.mp3",
+  "Songs/David Sneddon - Don't Let Go.mp3",
+  "Songs/Deee-Lite - Groove Is In The Heart.mp3",
+  "Songs/Dizzee Rascal - Holiday.mp3",
+  "Songs/DJ Dado - Ready Or Not.mp3",
+  "Songs/Kelly Rowland - When Love Takes Over.mp3",
+  "Songs/Electric Light Orchestra - Confusion.mp3",
+  "Songs/Ellie Goulding - Still Falling For You.flac",
+  "Songs/Elton John - Sacrifice.mp3",
+  "Songs/Emeli Sande - Next To Me.mp3",
+  "Songs/Enrique Iglesias - Do You Know.mp3",
+  "Songs/Enrique Iglesias - I Like It.mp3",
+  "Songs/Erasure - A Little Respect.mp3",
+  "Songs/Erasure - Star.mp3",
+  "Songs/Eruption - I Can't Stand The Rain.mp3",
+  "Songs/Eternal - Angel Of Mine.mp3",
+  "Songs/Eternal - Good Thing.mp3",
+  "Songs/Eyeopener - Hungry Eyes.mp3",
+  "Songs/Faith Hill - There You'll Be.mp3",
+  "Songs/Fierce - Right Here Right Now.mp3",
+  "Songs/Flo Rida Ft David Guetta - Club Can't Handle Me.mp3",
+  "Songs/Gabrielle - Don't Need The Sun To Shine (To Make Me Smile).mp3",
+  "Songs/Gabrielle - Give Me A Little More Time.mp3",
+  "Songs/Gabrielle - Sunshine.mp3",
+  "Songs/Gary Barlow - Stronger.mp3",
+  "Songs/George Harrison - My Sweet Lord.mp3",
+  "Songs/George Michael - Amazing.mp3",
+  "Songs/George Michael - Heal The Pain.mp3",
+  "Songs/Groove Armada - Song 4 Mutya.mp3",
+  "Songs/Gwen Stefani - Cool.mp3",
+  "Songs/Honeyz - Finally Found.mp3",
+  "Songs/Inna - Hot.mp3",
+  "Songs/James Morrison - Please Don't Stop The Rain.mp3",
+  "Songs/James Morrison - Save Yourself.mp3",
+  "Songs/James Morrison - You Make It Real.mp3",
+  "Songs/James Morrison Ft Nelly Furtado - Broken Strings.mp3",
+  "Songs/Janet Jackson - Again.mp3",
+  "Songs/Janet Jackson - Because Of You.mp3",
+  "Songs/Jason Derulo - The Sky's The Limit.mp3",
+  "Songs/Jay Sean - Do You Remember.mp3",
+  "Songs/Jay Sean - Down.mp3",
+  "Songs/Jay Sean Ft Nicki Minaj - 2012 (It Ain't The End).mp3",
+  "Songs/Jennifer Lopez - Waiting For Tonight.mp3",
+  "Songs/Jerome Stocks - Baby I Need Your Lovin'.mp3",
+  "Songs/Jesse McCartney - How Do You Sleep.mp3",
+  "Songs/Jessie J - Domino.mp3",
+  "Songs/JLS - Close To You.mp3",
+  "Songs/JLS - Eye's Wide Shut.mp3",
+  "Songs/JLS - One Shot.mp3",
+  "Songs/JLS - She Makes Me Wanna.mp3",
+  "Songs/JLS - Teach Me How To Dance.mp3",
+  "Songs/JP Cooper - Passport Home.flac",
+  "Songs/Justin Bieber - Never Let You Go.mp3",
+  "Songs/Justin Timberlake - Can't Stop The Feeling.flac",
+  "Songs/Justin Timberlake - Rock Your Body.mp3",
+  "Songs/Sharam - P.A.T.T. (Party All The Time).mp3",
+  "Songs/Kym Sims - Too Blind To See It.mp3",
+  "Songs/Lady Gaga - Born This Way.mp3",
+  "Songs/Lawson - When She Was Mine.mp3",
+  "Songs/Lindsay Lohan - Over.mp3",
+  "Songs/Little Mix - No Time For Tears.flac",
+  "Songs/Livin Joy - Follow The Rules.mp3",
+  "Songs/Los Lobos - La Bamba.mp3",
+  "Songs/Love Affair - Bringing On Back The Good Times.mp3",
+  "Songs/Lumidee - Never Leave You.mp3",
+  "Songs/M.O - Preach.mp3",
+  "Songs/Manfred Mann Earthband - Joybringer.mp3",
+  "Songs/Manic Street Preachers - Your Love Alone Is Not Enough.mp3",
+  "Songs/Marcella Woods - Beautiful.mp3",
+  "Songs/Maroon 5 - Sugar.mp3",
+  "Songs/Maroon 5 - What Lovers Do.flac",
+  "Songs/McFly - All About You.mp3",
+  "Songs/McFly - Star Girl.mp3",
+  "Songs/McFly Ft Taio Cruz - Shine A Light.mp3",
+  "Songs/Meck - Thunder In My Heart.mp3",
+  "Songs/Melissa Manchester - You Should Hear How She Talks About You.mp3",
+  "Songs/Mica Paris - Like Dreamers Do.mp3",
+  "Songs/MN8 - I've Got A Little Something For You.mp3",
+  "Songs/Modjo - Lady.mp3",
+  "Songs/Mon A Q - Stay In Love.flac",
+  "Songs/Nelly Furtado Ft Timbaland - Promiscuous.mp3",
+  "Songs/New Kids On The Block - Step By Step.mp3",
+  "Songs/Ne-Yo - Because Of You.mp3",
+  "Songs/Ne-Yo - Miss Independent.mp3",
+  "Songs/Ne-Yo - Sexy Love.mp3",
+  "Songs/Nickelback - Far Away.mp3",
+  "Songs/Nicki Minaj - Super Bass.mp3",
+  "Songs/Nicki Minaj ft Rihanna - Fly.mp3",
+  "Songs/Oasis - Lyla.mp3",
+  "Songs/One Direction - Change Your Ticket.mp3",
+  "Songs/Owen Paul - My Favourite Waste Of Time.mp3",
+  "Songs/O-Zone - Dragostea Din Tei.mp3",
+  "Songs/Phd - I Won't Let You Down.mp3",
+  "Songs/Pink - Please Don't Leave Me.mp3",
+  "Songs/Rihanna - Hate That I Love You.mp3",
+  "Songs/Rihanna - Stay.mp3",
+  "Songs/Rihanna - What's My Name.mp3",
+  "Songs/Rozalla - Everybody's Free.mp3",
+  "Songs/Rudimental Ft John Newman - Feel The Love.mp3",
+  "Songs/Ryan Paris - Dolce Vita.mp3",
+  "Songs/Sabrina Johnston - Peace.mp3",
+  "Songs/Scouting For Girls - This Ain't A Love Song.mp3",
+  "Songs/September - Can't Get Over.mp3",
+  "Songs/Shaggy - Dance & Shout.mp3",
+  "Songs/Shalamar - I Can Make You Feel Good.mp3",
+  "Songs/YoungMoney - BedRock.mp3",
+  "Songs/Simon Laufer - Can't Feel The Ground.mp3",
+  "Songs/Simon Webbe - Coming Around Again.mp3",
+  "Songs/Simple Minds - Alive And Kicking.mp3",
+  "Songs/Simple Minds - Let There Be Love.mp3",
+  "Songs/Sixpence None The Richer - Kiss Me.mp3",
+  "Songs/Snap - Rhythm Is A Dancer.mp3",
+  "Songs/Soccer Anthem (Ole Ole Ole).mp3",
+  "Songs/Soul II Soul - Love Enough.mp3",
+  "Songs/Spirits Of Rhythm - Music.mp3",
+  "Songs/Stereophonics - Caught By The Wind.flac",
+  "Songs/Sugababes - Freak Like Me.mp3",
+  "Songs/SWV - Right Here.mp3",
+  "Songs/Taio Cruz - I Can Be.mp3",
+  "Songs/Take That - Greatest Day.mp3",
+  "Songs/Take That - Rule The World.mp3",
+  "Songs/The Alan Parsons Project - Prime Time.mp3",
+  "Songs/The Gap Band - Big Fun.mp3",
+  "Songs/The Jacksons - Shake Your Body (Down To The Ground).mp3",
+  "Songs/The Saturdays - Higher.mp3",
+  "Songs/The Saturdays - Issues.mp3",
+  "Songs/The Shapeshifters - Lola's Theme.mp3",
+  "Songs/The Tyrrel Corporation - Better Days.mp3",
+  "Songs/The Wanted - Glow In The Dark.flac",
+  "Songs/The Wanted - Gold Forever.mp3",
+  "Songs/The Wanted - Lose My Mind.mp3",
+  "Songs/Thomas Helmig - Groovy Day.mp3",
+  "Songs/Timbaland - The Way I Are.mp3",
+  "Songs/Tinchy Stryder - Take Me Back.mp3",
+  "Songs/Tinchy Stryder Ft Amelle - Never Leave You.mp3",
+  "Songs/TLC - Dear Lie.mp3",
+  "Songs/TLC - Way Back.flac",
+  "Songs/Touché - Heaven Tonight.mp3",
+  "Songs/Triple Eight - Give Me A Reason.mp3",
+  "Songs/True Faith - Take Me Away.mp3",
+  "Songs/U2 - Beautiful Day.mp3",
+  "Songs/U2 - Sometimes You Can't Make It On Your Own.mp3",
+  "Songs/Ultra High - Stay With Me.mp3",
+  "Songs/Ultrabeat - Pretty Green Eyes.mp3",
+  "Songs/Uniting Nations - Out Of Touch.mp3",
+  "Songs/Unnamed 2.mp3",
+  "Songs/Unnamed 3.mp3",
+  "Songs/Unnamed 5.mp3",
+  "Songs/Urban Cookie Collective - The Key The Secret.mp3",
+  "Songs/Usher - OMG.mp3",
+  "Songs/Usher - Too Much.flac",
+  "Songs/Westlife - Against All Odds.mp3",
+  "Songs/Westlife - The Difference.mp3",
+  "Songs/Westlife - Us Against The World.mp3",
+  "Songs/Westlife - What About Now.mp3",
+  "Songs/Wham - I'm Your Man (remix).mp3",
+  "Songs/When In Rome - The Promise.mp3",
+  "Songs/Will To Power - Dreamin'.mp3",
+  "Songs/Will Young - Lie Next To Me.flac",
+  "Songs/Years & Years - Eyes Shut.mp3"
+];
+
+ 
+
+  /* ELEMENTS */
+  const audio = document.getElementById("songs-audio");
+  const playBtn = document.getElementById("songs-play");
+  const nextBtn = document.getElementById("songs-next");
+  const shuffleBtn = document.getElementById("songs-shuffle");
+  const progress = document.getElementById("songs-progress");
+  const currentTimeEl = document.getElementById("songs-current-time");
+  const durationEl = document.getElementById("songs-duration");
+
+  // ⭐ Songs use the RADIO volume slider
+  const volumeSlider = document.getElementById("radio-volume");
+
+  const songsNowPlaying = document.getElementById("songs-now-playing");
+
+  let shuffleOnSongs = false;
+  let shuffleBag = [];
+  let shufflePosition = 0;
+  let currentIndex = -1;
+
+  function updateButtonLockState() {
+    playBtn.disabled = false;
+    nextBtn.disabled = false;
+  }
+
+  function getNextShuffleIndex() {
+    if (shuffleBag.length === 0 || shufflePosition >= shuffleBag.length) {
+      shuffleBag = [...songsList.keys()];
+      shuffleBag.sort(() => Math.random() - 0.5);
+      shufflePosition = 0;
+    }
+    return shuffleBag[shufflePosition++];
+  }
+
+  function playSong(i) {
+    currentIndex = i;
+    audio.src = songsList[i];
+
+    // ⭐ Set correct volume BEFORE playing
+    audio.volume = parseFloat(volumeSlider.value);
+
+    audio.play().catch(() => {});
+
+    songsNowPlaying.textContent = "Now Playing Songs";
+    playBtn.textContent = "⏸";
+
+    // ⭐ Light up the Songs player
+    document.getElementById("songs-controls").classList.add("active");
+
+    updateButtonLockState();
+  }
+
+  /* ============================
+     PLAY / PAUSE BUTTON
+     ============================ */
+  playBtn.addEventListener("click", () => {
+
+    if (!audio.src) {
+      playSong(getNextShuffleIndex());
+      return;
+    }
+
+    if (audio.paused) {
+      audio.play();
+      playBtn.textContent = "⏸";
+      document.getElementById("songs-controls").classList.add("active");
+    } else {
+      audio.pause();
+      playBtn.textContent = "⏵";
+      document.getElementById("songs-controls").classList.remove("active");
+    }
+  });
+
+  /* ============================
+     NEXT BUTTON
+     ============================ */
+  nextBtn.addEventListener("click", () => {
+    playSong(getNextShuffleIndex());
+  });
+
+  /* ============================
+     SHUFFLE BUTTON
+     ============================ */
+  shuffleBtn.addEventListener("click", () => {
+    shuffleOnSongs = !shuffleOnSongs;
+    shuffleBtn.classList.toggle("songs-shuffle-active");
+    updateButtonLockState();
+
+    if (shuffleOnSongs) {
+      shuffleBag = [];
+      shufflePosition = 0;
+    }
+
+    if (shuffleOnSongs && !audio.src) {
+      playSong(getNextShuffleIndex());
+    }
+  });
+
+  /* ============================
+     METADATA LOADED
+     ============================ */
+  audio.addEventListener("loadedmetadata", () => {
+    durationEl.textContent = formatTimeSongs(audio.duration);
+  });
+
+  /* ============================
+     TIME UPDATE
+     ============================ */
+  audio.addEventListener("timeupdate", () => {
+    if (!audio.duration) return;
+
+    currentTimeEl.textContent = formatTimeSongs(audio.currentTime);
+    durationEl.textContent = formatTimeSongs(audio.duration);
+
+    const percent = (audio.currentTime / audio.duration) * 100;
+    progress.value = percent;
+  });
+
+  /* ============================
+     SCRUBBING
+     ============================ */
+  progress.addEventListener("input", () => {
+    if (!audio.duration) return;
+    const newTime = (progress.value / 100) * audio.duration;
+    audio.currentTime = newTime;
+  });
+
+  /* ============================
+     AUTO-NEXT
+     ============================ */
+  audio.addEventListener("ended", () => {
+    playSong(getNextShuffleIndex());
+  });
+
+  /* ============================
+     SHARED VOLUME
+     ============================ */
+  volumeSlider.addEventListener("input", () => {
+    audio.volume = parseFloat(volumeSlider.value);
+  });
+
+  /* ============================
+     TIME FORMATTER
+     ============================ */
+  function formatTimeSongs(sec) {
+    if (!sec || isNaN(sec)) return "00:00";
+    const m = Math.floor(sec / 60);
+    const s = Math.floor(sec % 60);
+    return `${m.toString().padStart(2,"0")}:${s.toString().padStart(2,"0")}`;
+  }
+
+  updateButtonLockState();
+})();
 </script>
+
 </body>
 </html>
