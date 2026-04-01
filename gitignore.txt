@@ -1,0 +1,11 @@
+Songs/
+Shows/
+Radio/
+*.mp3
+*.flac
+*.wav
+*.zip
+*.rar
+*.7z
+*.iso
+node_modules/
