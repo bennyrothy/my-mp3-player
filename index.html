@@ -1151,8 +1151,6 @@ timeProgress.addEventListener("input", (e) => {
   "Songs/Years & Years - Eyes Shut.mp3"
 ];
 
- 
-
   /* ELEMENTS */
   const audio = document.getElementById("songs-audio");
   const playBtn = document.getElementById("songs-play");
@@ -1163,12 +1161,13 @@ timeProgress.addEventListener("input", (e) => {
   const durationEl = document.getElementById("songs-duration");
 
   // ⭐ Songs use the RADIO volume slider
-  const volumeSlider = document.getElementById("radio-volume");
+const volumeSlider = document.getElementById("radio-volume");
+const songsNowPlaying = document.getElementById("songs-now-playing");
 
-  const songsNowPlaying = document.getElementById("songs-now-playing");
-
-  let shuffleOrder = [];
-let shuffleIndex = 0;
+let shuffleOnSongs = false;   // NEW — needed for toggle
+let shuffleOrder = [];        // NEW — Fisher–Yates order
+let shuffleIndex = 0;         // NEW — pointer
+let currentIndex = -1;        // ensure this exists
 
 function buildShuffleOrder() {
   shuffleOrder = [...songsList.keys()];
@@ -1186,130 +1185,73 @@ function getNextShuffleIndex() {
   if (shuffleOrder.length === 0 || shuffleIndex >= shuffleOrder.length) {
     buildShuffleOrder();
   }
-
   return shuffleOrder[shuffleIndex++];
 }
 
+function playSong(i) {
+  currentIndex = i;
+  audio.src = songsList[i];
 
-  function playSong(i) {
-    currentIndex = i;
-    audio.src = songsList[i];
+  audio.volume = parseFloat(volumeSlider.value);
+  audio.play().catch(() => {});
 
-    // ⭐ Set correct volume BEFORE playing
-    audio.volume = parseFloat(volumeSlider.value);
+  songsNowPlaying.textContent = "Now Playing Songs";
+  playBtn.textContent = "⏸";
 
-    audio.play().catch(() => {});
-
-    songsNowPlaying.textContent = "Now Playing Songs";
-    playBtn.textContent = "⏸";
-
-    // ⭐ Light up the Songs player
-    document.getElementById("songs-controls").classList.add("active");
-
-    updateButtonLockState();
-  }
-
-  /* ============================
-     PLAY / PAUSE BUTTON
-     ============================ */
-  playBtn.addEventListener("click", () => {
-
-    if (!audio.src) {
-      playSong(getNextShuffleIndex());
-      return;
-    }
-
-    if (audio.paused) {
-      audio.play();
-      playBtn.textContent = "⏸";
-      document.getElementById("songs-controls").classList.add("active");
-    } else {
-      audio.pause();
-      playBtn.textContent = "⏵";
-      document.getElementById("songs-controls").classList.remove("active");
-    }
-  });
-
-  /* ============================
-     NEXT BUTTON
-     ============================ */
-  nextBtn.addEventListener("click", () => {
-    playSong(getNextShuffleIndex());
-  });
-
-  /* ============================
-     SHUFFLE BUTTON
-     ============================ */
-  shuffleBtn.addEventListener("click", () => {
-    shuffleOnSongs = !shuffleOnSongs;
-    shuffleBtn.classList.toggle("songs-shuffle-active");
-    updateButtonLockState();
-
-    if (shuffleOnSongs) {
-      shuffleBag = [];
-      shufflePosition = 0;
-    }
-
-    if (shuffleOnSongs && !audio.src) {
-      playSong(getNextShuffleIndex());
-    }
-  });
-
-  /* ============================
-     METADATA LOADED
-     ============================ */
-  audio.addEventListener("loadedmetadata", () => {
-    durationEl.textContent = formatTimeSongs(audio.duration);
-  });
-
-  /* ============================
-     TIME UPDATE
-     ============================ */
-  audio.addEventListener("timeupdate", () => {
-    if (!audio.duration) return;
-
-    currentTimeEl.textContent = formatTimeSongs(audio.currentTime);
-    durationEl.textContent = formatTimeSongs(audio.duration);
-
-    const percent = (audio.currentTime / audio.duration) * 100;
-    progress.value = percent;
-  });
-
-  /* ============================
-     SCRUBBING
-     ============================ */
-  progress.addEventListener("input", () => {
-    if (!audio.duration) return;
-    const newTime = (progress.value / 100) * audio.duration;
-    audio.currentTime = newTime;
-  });
-
-  /* ============================
-     AUTO-NEXT
-     ============================ */
-  audio.addEventListener("ended", () => {
-    playSong(getNextShuffleIndex());
-  });
-
-  /* ============================
-     SHARED VOLUME
-     ============================ */
-  volumeSlider.addEventListener("input", () => {
-    audio.volume = parseFloat(volumeSlider.value);
-  });
-
-  /* ============================
-     TIME FORMATTER
-     ============================ */
-  function formatTimeSongs(sec) {
-    if (!sec || isNaN(sec)) return "00:00";
-    const m = Math.floor(sec / 60);
-    const s = Math.floor(sec % 60);
-    return `${m.toString().padStart(2,"0")}:${s.toString().padStart(2,"0")}`;
-  }
+  document.getElementById("songs-controls").classList.add("active");
 
   updateButtonLockState();
-})();
+}
+
+/* ============================
+   PLAY / PAUSE BUTTON
+   ============================ */
+playBtn.addEventListener("click", () => {
+  if (!audio.src) {
+    playSong(getNextShuffleIndex());
+    return;
+  }
+
+  if (audio.paused) {
+    audio.play();
+    playBtn.textContent = "⏸";
+    document.getElementById("songs-controls").classList.add("active");
+  } else {
+    audio.pause();
+    playBtn.textContent = "⏵";
+    document.getElementById("songs-controls").classList.remove("active");
+  }
+});
+
+/* ============================
+   NEXT BUTTON
+   ============================ */
+nextBtn.addEventListener("click", () => {
+  playSong(getNextShuffleIndex());
+});
+
+/* ============================
+   SHUFFLE BUTTON
+   ============================ */
+shuffleBtn.addEventListener("click", () => {
+  shuffleOnSongs = !shuffleOnSongs;
+  shuffleBtn.classList.toggle("songs-shuffle-active");
+
+  // If shuffle turned on and nothing has played yet
+  if (shuffleOnSongs && !audio.src) {
+    playSong(getNextShuffleIndex());
+  }
+});
+
+/* ============================
+   AUTO-NEXT
+   ============================ */
+audio.addEventListener("ended", () => {
+  if (shuffleOnSongs) {
+    playSong(getNextShuffleIndex());
+  }
+});
+
 </script>
 
 </body>
