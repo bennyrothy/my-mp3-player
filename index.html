@@ -1151,109 +1151,165 @@ timeProgress.addEventListener("input", (e) => {
   "Songs/Years & Years - Eyes Shut.mp3"
 ];
 
- /* ELEMENTS */
-const audio = document.getElementById("songs-audio");
-const playBtn = document.getElementById("songs-play");
-const nextBtn = document.getElementById("songs-next");
+  /* ============================
+     ELEMENTS
+     ============================ */
+  const audio = document.getElementById("songs-audio");
+  const playBtn = document.getElementById("songs-play");
+  const nextBtn = document.getElementById("songs-next");
+  const songsShuffleBtn = document.getElementById("songs-shuffle");
 
-// ⭐ FIX: renamed to avoid conflict with #shuffle-btn (Show Player)
-const songsShuffleBtn = document.getElementById("songs-shuffle");
+  const progress = document.getElementById("songs-progress");
+  const currentTimeEl = document.getElementById("songs-current-time");
+  const durationEl = document.getElementById("songs-duration");
 
-const progress = document.getElementById("songs-progress");
-const currentTimeEl = document.getElementById("songs-current-time");
-const durationEl = document.getElementById("songs-duration");
+  // Songs use the RADIO volume slider
+  const volumeSlider = document.getElementById("radio-volume");
 
-// ⭐ Songs use the RADIO volume slider
-const volumeSlider = document.getElementById("radio-volume");
-const songsNowPlaying = document.getElementById("songs-now-playing");
+  // Your Now Playing element
+  const songsNowPlaying = document.getElementById("now-playing");
 
-let shuffleOnSongs = false;     // shuffle toggle
-let shuffleOrder = [];          // Fisher–Yates order
-let shuffleIndex = 0;           // pointer
-let currentIndex = -1;          // currently playing index
+  /* ============================
+     STATE
+     ============================ */
+  let shuffleOnSongs = false;
+  let shuffleOrder = [];
+  let shuffleIndex = 0;
+  let currentIndex = -1;
 
-function buildShuffleOrder() {
-  shuffleOrder = [...songsList.keys()];
-
-  // Fisher–Yates shuffle
-  for (let i = shuffleOrder.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [shuffleOrder[i], shuffleOrder[j]] = [shuffleOrder[j], shuffleOrder[i]];
+  /* ============================
+     HELPERS
+     ============================ */
+  function formatTime(sec) {
+    if (!sec || isNaN(sec)) return "00:00";
+    const m = Math.floor(sec / 60);
+    const s = Math.floor(sec % 60);
+    return `${m.toString().padStart(2, "0")}:${s.toString().padStart(2, "0")}`;
   }
 
-  shuffleIndex = 0;
-}
-
-function getNextShuffleIndex() {
-  if (shuffleOrder.length === 0 || shuffleIndex >= shuffleOrder.length) {
-    buildShuffleOrder();
-  }
-  return shuffleOrder[shuffleIndex++];
-}
-
-function playSong(i) {
-  currentIndex = i;
-  audio.src = songsList[i];
-
-  audio.volume = parseFloat(volumeSlider.value);
-  audio.play().catch(() => {});
-
-  songsNowPlaying.textContent = "Now Playing Songs";
-  playBtn.textContent = "⏸";
-
-  document.getElementById("songs-controls").classList.add("active");
-
-  updateButtonLockState();
-}
-
-/* ============================
-   PLAY / PAUSE BUTTON
-   ============================ */
-playBtn.addEventListener("click", () => {
-  if (!audio.src) {
-    playSong(getNextShuffleIndex());
-    return;
+  function updateButtonLockState() {
+    playBtn.disabled = false;
+    nextBtn.disabled = false;
   }
 
-  if (audio.paused) {
-    audio.play();
+  /* ============================
+     SHUFFLE SYSTEM (FISHER–YATES)
+     ============================ */
+  function buildShuffleOrder() {
+    shuffleOrder = [...songsList.keys()];
+
+    for (let i = shuffleOrder.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffleOrder[i], shuffleOrder[j]] = [shuffleOrder[j], shuffleOrder[i]];
+    }
+
+    shuffleIndex = 0;
+  }
+
+  function getNextShuffleIndex() {
+    if (shuffleOrder.length === 0 || shuffleIndex >= shuffleOrder.length) {
+      buildShuffleOrder();
+    }
+    return shuffleOrder[shuffleIndex++];
+  }
+
+  /* ============================
+     PLAY A SONG
+     ============================ */
+  function playSong(i) {
+    currentIndex = i;
+    audio.src = songsList[i];
+
+    audio.volume = parseFloat(volumeSlider.value);
+    audio.play().catch(() => {});
+
+    songsNowPlaying.textContent = "Now Playing: Songs Player";
     playBtn.textContent = "⏸";
+
     document.getElementById("songs-controls").classList.add("active");
-  } else {
-    audio.pause();
-    playBtn.textContent = "⏵";
-    document.getElementById("songs-controls").classList.remove("active");
+
+    updateButtonLockState();
   }
-});
 
-/* ============================
-   NEXT BUTTON
-   ============================ */
-nextBtn.addEventListener("click", () => {
-  playSong(getNextShuffleIndex());
-});
+  /* ============================
+     PLAY / PAUSE BUTTON
+     ============================ */
+  playBtn.addEventListener("click", () => {
+    if (!audio.src) {
+      playSong(getNextShuffleIndex());
+      return;
+    }
 
-/* ============================
-   SHUFFLE BUTTON (FIXED)
-   ============================ */
-songsShuffleBtn.addEventListener("click", () => {
-  shuffleOnSongs = !shuffleOnSongs;
-  songsShuffleBtn.classList.toggle("songs-shuffle-active");
+    if (audio.paused) {
+      audio.play();
+      playBtn.textContent = "⏸";
+      document.getElementById("songs-controls").classList.add("active");
+    } else {
+      audio.pause();
+      playBtn.textContent = "⏵";
+      document.getElementById("songs-controls").classList.remove("active");
+    }
+  });
 
-  // If shuffle turned on and nothing has played yet
-  if (shuffleOnSongs && !audio.src) {
+  /* ============================
+     NEXT BUTTON
+     ============================ */
+  nextBtn.addEventListener("click", () => {
     playSong(getNextShuffleIndex());
-  }
-});
+  });
 
-/* ============================
-   AUTO-NEXT
-   ============================ */
-audio.addEventListener("ended", () => {
-  if (shuffleOnSongs) {
-    playSong(getNextShuffleIndex());
-  }
-});
+  /* ============================
+     SHUFFLE BUTTON
+     ============================ */
+  songsShuffleBtn.addEventListener("click", () => {
+    shuffleOnSongs = !shuffleOnSongs;
+    songsShuffleBtn.classList.toggle("songs-shuffle-active");
+
+    if (shuffleOnSongs && !audio.src) {
+      playSong(getNextShuffleIndex());
+    }
+  });
+
+  /* ============================
+     TIME + PROGRESS BAR
+     ============================ */
+  audio.addEventListener("timeupdate", () => {
+    const current = audio.currentTime;
+    const total = audio.duration || 0;
+
+    currentTimeEl.textContent = formatTime(current);
+    durationEl.textContent = formatTime(total);
+
+    if (total > 0) {
+      progress.value = (current / total) * 100;
+    } else {
+      progress.value = 0;
+    }
+  });
+
+  progress.addEventListener("input", (e) => {
+    const total = audio.duration || 0;
+    if (!total) return;
+    audio.currentTime = (e.target.value / 100) * total;
+  });
+
+  /* ============================
+     VOLUME CONTROL
+     ============================ */
+  volumeSlider.addEventListener("input", () => {
+    audio.volume = parseFloat(volumeSlider.value);
+  });
+
+  /* ============================
+     AUTO-NEXT
+     ============================ */
+  audio.addEventListener("ended", () => {
+    if (shuffleOnSongs) {
+      playSong(getNextShuffleIndex());
+    }
+  });
+
+})();  // END SONGS PLAYER IIFE
 
 
 </script>
