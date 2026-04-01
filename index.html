@@ -1151,23 +1151,26 @@ timeProgress.addEventListener("input", (e) => {
   "Songs/Years & Years - Eyes Shut.mp3"
 ];
 
-  /* ELEMENTS */
-  const audio = document.getElementById("songs-audio");
-  const playBtn = document.getElementById("songs-play");
-  const nextBtn = document.getElementById("songs-next");
-  const shuffleBtn = document.getElementById("songs-shuffle");
-  const progress = document.getElementById("songs-progress");
-  const currentTimeEl = document.getElementById("songs-current-time");
-  const durationEl = document.getElementById("songs-duration");
+ /* ELEMENTS */
+const audio = document.getElementById("songs-audio");
+const playBtn = document.getElementById("songs-play");
+const nextBtn = document.getElementById("songs-next");
 
-  // ⭐ Songs use the RADIO volume slider
+// ⭐ FIX: renamed to avoid conflict with #shuffle-btn (Show Player)
+const songsShuffleBtn = document.getElementById("songs-shuffle");
+
+const progress = document.getElementById("songs-progress");
+const currentTimeEl = document.getElementById("songs-current-time");
+const durationEl = document.getElementById("songs-duration");
+
+// ⭐ Songs use the RADIO volume slider
 const volumeSlider = document.getElementById("radio-volume");
 const songsNowPlaying = document.getElementById("songs-now-playing");
 
-let shuffleOnSongs = false;   // NEW — needed for toggle
-let shuffleOrder = [];        // NEW — Fisher–Yates order
-let shuffleIndex = 0;         // NEW — pointer
-let currentIndex = -1;        // ensure this exists
+let shuffleOnSongs = false;     // shuffle toggle
+let shuffleOrder = [];          // Fisher–Yates order
+let shuffleIndex = 0;           // pointer
+let currentIndex = -1;          // currently playing index
 
 function buildShuffleOrder() {
   shuffleOrder = [...songsList.keys()];
@@ -1231,11 +1234,11 @@ nextBtn.addEventListener("click", () => {
 });
 
 /* ============================
-   SHUFFLE BUTTON
+   SHUFFLE BUTTON (FIXED)
    ============================ */
-shuffleBtn.addEventListener("click", () => {
+songsShuffleBtn.addEventListener("click", () => {
   shuffleOnSongs = !shuffleOnSongs;
-  shuffleBtn.classList.toggle("songs-shuffle-active");
+  songsShuffleBtn.classList.toggle("songs-shuffle-active");
 
   // If shuffle turned on and nothing has played yet
   if (shuffleOnSongs && !audio.src) {
@@ -1251,6 +1254,7 @@ audio.addEventListener("ended", () => {
     playSong(getNextShuffleIndex());
   }
 });
+
 
 </script>
 
