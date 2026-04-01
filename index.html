@@ -628,14 +628,14 @@ const nightBackgrounds = [
 
 const hour = new Date().getHours();
 
-// ⭐ Daytime is now 6am → 6:59pm
-const isDaytime = hour >= 6 && hour < 19;
+// Night starts at 20:00 (8pm) and runs until 06:00
+const isNight = (hour >= 20 || hour < 6);
 
-const chosenSet = isDaytime ? dayBackgrounds : nightBackgrounds;
-const chosenBackground = chosenSet[Math.floor(Math.random() * chosenSet.length)];
+const chosenBackground = isNight
+  ? nightBackgrounds[Math.floor(Math.random() * nightBackgrounds.length)]
+  : dayBackgrounds[Math.floor(Math.random() * dayBackgrounds.length)];
 
 document.getElementById("bg").style.backgroundImage = `url('${chosenBackground}')`;
-
 
 /* ============================
    ELEMENT REFERENCES
