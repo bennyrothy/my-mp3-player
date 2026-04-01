@@ -1167,24 +1167,29 @@ timeProgress.addEventListener("input", (e) => {
 
   const songsNowPlaying = document.getElementById("songs-now-playing");
 
-  let shuffleOnSongs = false;
-  let shuffleBag = [];
-  let shufflePosition = 0;
-  let currentIndex = -1;
+  let shuffleOrder = [];
+let shuffleIndex = 0;
 
-  function updateButtonLockState() {
-    playBtn.disabled = false;
-    nextBtn.disabled = false;
+function buildShuffleOrder() {
+  shuffleOrder = [...songsList.keys()];
+
+  // Fisher–Yates shuffle
+  for (let i = shuffleOrder.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffleOrder[i], shuffleOrder[j]] = [shuffleOrder[j], shuffleOrder[i]];
   }
 
-  function getNextShuffleIndex() {
-    if (shuffleBag.length === 0 || shufflePosition >= shuffleBag.length) {
-      shuffleBag = [...songsList.keys()];
-      shuffleBag.sort(() => Math.random() - 0.5);
-      shufflePosition = 0;
-    }
-    return shuffleBag[shufflePosition++];
+  shuffleIndex = 0;
+}
+
+function getNextShuffleIndex() {
+  if (shuffleOrder.length === 0 || shuffleIndex >= shuffleOrder.length) {
+    buildShuffleOrder();
   }
+
+  return shuffleOrder[shuffleIndex++];
+}
+
 
   function playSong(i) {
     currentIndex = i;
